@@ -1,0 +1,9 @@
+To be clear on the full picture for Nuxt 4's structure, everything convention-based moves under app/:
+
+app/app.vue
+app/pages/
+app/layouts/
+app/components/
+app/composables/
+app/middleware/
+app/plugins/
