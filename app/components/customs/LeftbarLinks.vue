@@ -19,14 +19,18 @@ const activeLabel = defineModel<string>('activeLabel', { required: true });
         @click="activeLabel = l.label"
       >
         <Icon
-          v-if="activeLabel !== l.label"
           :name="l.icon"
-          class="text-2xl size-6 shrink-0"
+          :class="cn(
+            'text-2xl size-6 shrink-0',
+            activeLabel !== l.label ? 'block' : 'hidden',
+          )"
         />
         <Icon
-          v-if="activeLabel === l.label"
           :name="l.iconActive"
-          class="text-2xl size-6 shrink-0"
+          :class="cn(
+            'text-2xl size-6 shrink-0',
+            activeLabel === l.label ? 'block' : 'hidden'
+          )"
         />
         <span>
           {{ l.label }}
