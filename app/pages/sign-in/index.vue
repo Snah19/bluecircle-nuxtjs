@@ -33,7 +33,7 @@ const signInMutation = useMutation({
       errorMessage.value = error.response.message;
       return;
     }
-    errorMessage.value = "Something went wrong while signing in. Please try again.";
+    errorMessage.value = "Something went wrong";
   },
 });
 </script>
