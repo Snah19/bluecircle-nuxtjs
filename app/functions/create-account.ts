@@ -7,36 +7,48 @@ interface Response {
 }
 
 type Payload = {
+  username: string;
+  fullname: string;
   email: string;
   password: string;
 }
 
-export class SignInError extends Error {
+export class CreateAccountError extends Error {
   constructor(public response: ApiErrorResponse) {
     super(response.message);
-    this.name = "SignInError";
+    this.name = "CreateAccountError";
   }
 }
 
-export const signIn = async (payload: Payload): Promise<Response> => {
+export const createAccount = async (payload: Payload): Promise<Response> => {
   try {
+    await $fetch<Response>(
+      `${import.meta.env.VITE_BLUECIRCLE_API_URL}/api/v1/auth/create-account`,
+      {
+        method: 'POST',
+        body: payload,
+      },
+    );
+
+    const { username, ...body } = payload;
+
     return await $fetch<Response>(
       `${import.meta.env.VITE_BLUECIRCLE_API_URL}/api/v1/auth/sign-in`,
       {
         method: 'POST',
-        body: payload,
-      }
+        body,
+      },
     );
   }
   catch (error: any) {
     if (error?.data) {
-      throw new SignInError(error.data as ApiErrorResponse);
+      throw new CreateAccountError(error.data as ApiErrorResponse);
     }
 
-    throw new SignInError({
+    throw new CreateAccountError({
       message: "Something went wrong",
       error: "Unknown",
       statusCode: error?.statusCode ?? 500,
     });
   }
-};
+}

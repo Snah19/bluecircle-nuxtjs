@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { useMutation } from '@tanstack/vue-query';
-import SignInForm from '~/components/customs/SignInForm.vue';
-import { signIn, SignInError } from '~/functions/sign-in';
+import CreateAccountForm from '~/components/customs/CreateAccountForm.vue';
+import { createAccount, CreateAccountError } from '~/functions/create-account';
 
 definePageMeta({
   layout: false,
 });
 
 useHead({
-  title: 'Sign in - Bluecircle',
+  title: 'Create Account - Bluecircle',
 });
 
 const router = useRouter();
@@ -21,15 +21,15 @@ const tokenCookie = useCookie('auth_token', {
 
 const errorMessage = ref("");
 
-const signInMutation = useMutation({
-  mutationFn: signIn,
+const createAccountMutation = useMutation({
+  mutationFn: createAccount,
   onSuccess: (response) => {
     errorMessage.value = "";
     tokenCookie.value = response.token;
     window.location.href = '/';
   },
   onError: (error) => {
-    if (error instanceof SignInError) {
+    if (error instanceof CreateAccountError) {
       errorMessage.value = error.response.message;
       return;
     }
@@ -43,19 +43,19 @@ const signInMutation = useMutation({
     <div class="shrink-0 flex flex-col justify-center p-10 border-r border-gray-700">
       <div class="space-y-4">
         <h1 class="text-6xl font-bold text-right text-blue-500">
-          Sign in
+          Create Account
         </h1>
         <p class="text-right">
-          Enter your email and password
+          We’re so excited to have you join us!
         </p>
       </div>
     </div>
     <main class="flex flex-col justify-center max-w-150 w-full min-h-screen p-10">
-      <SignInForm
-        :isPending="signInMutation.isPending.value"
+      <CreateAccountForm
+        :isPending="createAccountMutation.isPending.value"
         :error-message="errorMessage"
         @back="router.back()"
-        @sign-in="signInMutation.mutate"
+        @create-account="createAccountMutation.mutate"
       />
     </main>
   </div>

@@ -13,7 +13,10 @@ import blueCircle from '~/assets/svgs/blue-circle.svg';
     </h1>
 
     <div class="flex gap-x-2 text-xs">
-      <button class="py-2 px-4 rounded-full cursor-pointer bg-blue-700 hover:bg-blue-600">
+      <button
+        class="py-2 px-4 rounded-full cursor-pointer bg-blue-700 hover:bg-blue-600"
+        @click="navigateTo('/create-account')"
+      >
         Create account
       </button>
       <button

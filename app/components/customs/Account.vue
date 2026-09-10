@@ -2,6 +2,7 @@
 import type { DropdownMenuItem } from "@nuxt/ui";
 import type { User } from "~/types/user";
 import SignOutModal from "./SignOutModal.vue";
+import defaultProfile from "~/assets/svgs/default-profile.svg";
 
 interface Props {
   me: User
@@ -66,7 +67,7 @@ const items = ref<DropdownMenuItem[]>(
         >
           <img
             class="w-full h-full object-cover"
-            :src="me?.profileImageUrl"
+            :src="me?.profileImageUrl || defaultProfile"
             width="auto"
             height="auto"
             alt=""
