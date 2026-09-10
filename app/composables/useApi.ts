@@ -2,7 +2,7 @@ export const useApi = () => {
   const tokenCookie = useCookie('auth_token');
 
   return $fetch.create({
-    baseURL: 'https://bluecircle-nestjs.onrender.com',
+    baseURL: import.meta.env.VITE_BLUECIRCLE_API_URL,
     onRequest({ options }) {
       if (tokenCookie.value) {
         const headers = new Headers(options.headers || {});
