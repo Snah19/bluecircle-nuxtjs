@@ -19,14 +19,13 @@ export class SignInError extends Error {
 }
 
 export const signIn = async (payload: Payload): Promise<Response> => {
+  const { $api } = useNuxtApp();
+
   try {
-    return await $fetch<Response>(
-      `${import.meta.env.VITE_BLUECIRCLE_API_URL}/api/v1/auth/sign-in`,
-      {
-        method: 'POST',
-        body: payload,
-      }
-    );
+    return await $api<Response>('/api/v1/auth/sign-in', {
+      method: 'POST',
+      body: payload,
+    });
   }
   catch (error: any) {
     if (error?.data) {

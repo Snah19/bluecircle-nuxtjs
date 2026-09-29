@@ -1,6 +1,8 @@
+// app/functions/get-me.ts
+
 import { FetchError } from 'ofetch';
-import type { ApiErrorResponse } from '~/interfaces/api-error-response';
-import type { User } from '~/types/user';
+import type { ApiErrorResponse } from '@/interfaces/api-error-response';
+import type { User } from '@/types/user';
 
 export class GetMeError extends Error {
   constructor(public response: ApiErrorResponse) {
@@ -9,16 +11,11 @@ export class GetMeError extends Error {
   }
 }
 
-export const getMe = async (token: string) => {
+export const getMe = async () => {
+  const { $api } = useNuxtApp();
+
   try {
-    return await $fetch<User>(
-      `${import.meta.env.VITE_BLUECIRCLE_API_URL}/api/v1/me`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    return await $api<User>('/api/v1/me');
   }
   catch (error) {
     if (error instanceof FetchError && error.data) {

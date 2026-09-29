@@ -7,17 +7,13 @@ export class SignOutError extends Error {
   }
 }
 
-export const signOut = async (token: string) => {
+export const signOut = async () => {
+  const { $api } = useNuxtApp();
+
   try {
-    return await $fetch(
-      `${import.meta.env.VITE_BLUECIRCLE_API_URL}/api/v1/auth/sign-out`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    return await $api('/api/v1/auth/sign-out', {
+      method: 'POST',
+    });
   }
   catch (error: any) {
     if (error?.data) {
