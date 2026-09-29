@@ -1,9 +1,17 @@
+<!-- app/app.vue -->
+<script setup lang="ts">
+import { useQuery } from '@tanstack/vue-query';
+import { meQuery } from '~/queries/me.query';
+
+const { suspense } = useQuery(meQuery());
+
+onServerPrefetch(async () => {
+  await suspense().catch(() => {});
+});
+</script>
+
 <template>
-  <UApp>
-    <div class="min-h-screen bg-gray-900 text-white">
-      <NuxtLayout>
-        <NuxtPage />
-      </NuxtLayout>
-    </div>
-  </UApp>
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
 </template>

@@ -21,24 +21,20 @@ export class CreateAccountError extends Error {
 }
 
 export const createAccount = async (payload: Payload): Promise<Response> => {
+  const { $api } = useNuxtApp();
+
   try {
-    await $fetch<Response>(
-      `${import.meta.env.VITE_BLUECIRCLE_API_URL}/api/v1/auth/create-account`,
-      {
-        method: 'POST',
-        body: payload,
-      },
-    );
+    await $api<User>('/api/v1/auth/create-account', {
+      method: 'POST',
+      body: payload,
+    });
 
     const { username, ...body } = payload;
 
-    return await $fetch<Response>(
-      `${import.meta.env.VITE_BLUECIRCLE_API_URL}/api/v1/auth/sign-in`,
-      {
-        method: 'POST',
-        body,
-      },
-    );
+    return await $api<Response>('/api/v1/auth/sign-in', {
+      method: 'POST',
+      body,
+    });
   }
   catch (error: any) {
     if (error?.data) {

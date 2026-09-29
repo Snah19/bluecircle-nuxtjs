@@ -5,6 +5,7 @@ import { createAccount, CreateAccountError } from '~/functions/create-account';
 
 definePageMeta({
   layout: false,
+  middleware: 'redirect-if-authenticated',
 });
 
 useHead({

@@ -5,6 +5,7 @@ import { signIn, SignInError } from '~/functions/sign-in';
 
 definePageMeta({
   layout: false,
+  middleware: 'redirect-if-authenticated',
 });
 
 useHead({

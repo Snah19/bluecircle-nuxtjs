@@ -11,7 +11,6 @@ const queryClient = useQueryClient();
 const route = useRoute();
 
 const tokenCookie = useCookie<string | null>('auth_token');
-const TOKEN = computed(() => tokenCookie.value || '');
 
 const activeLabel = ref("Home");
 
@@ -24,12 +23,12 @@ watchEffect(() => {
 
 if (import.meta.server) {
   await queryClient
-    .query(meQuery(TOKEN.value))
+    .query(meQuery())
     .catch(() => {});
 }
 
 const { data: me } = useQuery(
-  computed(() => meQuery(TOKEN.value))
+  computed(() => meQuery())
 );
 
 const signoutMutation = useMutation({
@@ -56,7 +55,7 @@ const signoutMutation = useMutation({
           :me="me"
           @go-to-profile="() => { console.log('go to profile'); }"
           @add-another-account="() => { console.log('add another account'); }"
-          @sign-out="() => { signoutMutation.mutate(TOKEN); }"
+          @sign-out="() => { signoutMutation.mutate(); }"
         />
       </div>
       <div>
