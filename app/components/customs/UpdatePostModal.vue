@@ -1,22 +1,30 @@
-<!-- app/componets/customs/CreatePostModal.vue -->
+<!-- app/components/customs/UpdatePostModal.vue -->
 
 <script setup lang="ts">
-import type { User } from '@/types/user';
 import defaultProfile from '@/assets/svgs/default-profile.svg';
 import AutoGrowTextArea from '@/components/customs/AutoGrowTextArea.vue';
+import type { Post } from '@/types/post';
+import { useQuery } from '@tanstack/vue-query';
+import { meQuery } from '@/queries/me.query';
 
 interface Props {
   open: boolean;
   isPending?: boolean;
-  me: User;
+  post: Post;
 };
 
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
   'update:open': [open: boolean];
-  'create-post': [payload: { text: string; files: File[] }];
+  'update-post': [payload: {
+    text: string;
+    keptImageUrls: string[];
+    files: File[];
+  }];
 }>();
+
+const { data: me } = useQuery(meQuery());
 
 const MAX_LENGTH = 400;
 const MAX_IMAGES = 8;
@@ -26,7 +34,7 @@ const fileInputRef = ref<HTMLInputElement | null>(null);
 
 type ImageItem = {
   id: string;
-  file: File;
+  file?: File;
   previewUrl: string;
 };
 
@@ -34,11 +42,28 @@ const images = ref<ImageItem[]>([]);
 
 const remaining = computed(() => MAX_LENGTH - text.value.length);
 const canAddMoreImages = computed(() => images.value.length < MAX_IMAGES);
-const canCreatePost = computed(() =>
+const hasChanges = computed(() => {
+  const originalText = (props.post.text ?? '').trim();
+  const keptCount = images.value.filter((img) => !img.file).length;
+
+  return (
+    text.value.trim() !== originalText ||
+    images.value.some((img) => img.file) ||
+    keptCount !== props.post.imageUrls.length
+  );
+});
+const canUpdatePost = computed(() =>
   !props.isPending &&
+  hasChanges.value &&
   remaining.value >= 0 &&
   (text.value.trim().length > 0 || images.value.length > 0)
 );
+
+const revokeLocalImage = (img: ImageItem) => {
+  if (img.file) {
+    URL.revokeObjectURL(img.previewUrl);
+  }
+};
 
 const openFilePicker = () => {
   if (!canAddMoreImages.value) {
@@ -46,7 +71,7 @@ const openFilePicker = () => {
   }
 
   fileInputRef.value?.click();
-}
+};
 
 const handleFileChange = (e: Event) => {
   const input = e.target as HTMLInputElement;
@@ -69,7 +94,7 @@ const handleFileChange = (e: Event) => {
   }
 
   input.value = '';
-}
+};
 
 const removeImage = (id: string) => {
   const target = images.value.find((img) => img.id === id);
@@ -77,34 +102,53 @@ const removeImage = (id: string) => {
     return;
   }
 
-  URL.revokeObjectURL(target.previewUrl);
+  revokeLocalImage(target);
   images.value = images.value.filter((img) => img.id !== id);
-}
+};
 
-const createPost = () => {
-  if (!canCreatePost.value) {
+const updatePost = () => {
+  if (!canUpdatePost.value) {
     return;
   }
 
-  emit('create-post', {
+  const keptImageUrls = images.value
+    .filter((img) => !img.file)
+    .map((img) => img.previewUrl);
+
+  emit('update-post', {
     text: text.value.trim(),
-    files: images.value.map((img) => img.file),
+    keptImageUrls,
+    files: images.value
+      .filter((img) => img.file)
+      .map((img) => img.file!),
   });
 };
 
+const initFromPost = () => {
+  text.value = props.post.text ?? '';
+  images.value = props.post.imageUrls.map((url) => ({
+    id: url,
+    previewUrl: url,
+  }));
+};
+
 onBeforeUnmount(() => {
-  images.value.forEach((img) => URL.revokeObjectURL(img.previewUrl));
+  images.value.forEach(revokeLocalImage);
 });
 
 watch(
   () => props.open,
   (isOpen) => {
-    if (!isOpen) {
+    if (isOpen) {
+      initFromPost();
+    }
+    else {
       text.value = '';
-      images.value.forEach((img) => URL.revokeObjectURL(img.previewUrl));
+      images.value.forEach(revokeLocalImage);
       images.value = [];
     }
-  }
+  },
+  { immediate: true }
 );
 </script>
 
@@ -131,10 +175,10 @@ watch(
 
           <button
             class="inline-flex items-center gap-x-2 py-2 px-4 text-sm rounded-full cursor-pointer bg-blue-500 hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed "
-            :disabled="!canCreatePost"
-            @click="createPost"
+            :disabled="!canUpdatePost"
+            @click="updatePost"
           >
-            Create Post
+            Update Post
             <Icon
               v-if="isPending"
               name="lucide:loader-circle"
@@ -148,7 +192,7 @@ watch(
             <div class="size-10 shrink-0 border border-gray-500 rounded-full overflow-hidden">
               <img
                 class="w-full h-full object-cover"
-                :src="me.profileImageUrl || defaultProfile"
+                :src="me?.profileImageUrl || defaultProfile"
                 width="auto"
                 height="auto"
                 alt=""

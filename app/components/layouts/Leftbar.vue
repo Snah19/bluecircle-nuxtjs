@@ -1,3 +1,5 @@
+<!-- app/components/layouts/Leftbar.vue -->
+
 <script setup lang="ts">
 import { signOut } from '~/functions/sign-out.ts';
 import Account from '../customs/Account.vue';
@@ -48,7 +50,7 @@ const signoutMutation = useMutation({
 </script>
 
 <template>
-  <aside class="min-w-60 p-4 border-r border-gray-700">
+  <aside class="sticky top-0 self-start min-w-60 min-h-screen p-4 border-r border-gray-700">
     <div v-if="me">
       <div class="mb-3">
         <Account
