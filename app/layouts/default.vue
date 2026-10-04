@@ -7,7 +7,7 @@ import Rightbar from '~/components/layouts/Rightbar.vue';
 </script>
 
 <template>
-  <div class="flex justify-between max-w-292.5 min-h-screen mx-auto">
+  <div class="flex justify-between max-w-292.5 min-h-screen mx-auto bg-gray-900">
     <Leftbar />
 
     <slot />
