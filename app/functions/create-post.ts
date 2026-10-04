@@ -1,15 +1,12 @@
-import type { ApiErrorResponse } from "~/interfaces/api-error-response";
-import type { Post } from "~/types/post";
-import type { User } from "~/types/user";
+// app/functions/create-post.ts
 
-interface Response extends Post {
-  user: User;
-}
+import type { ApiErrorResponse } from "@/interfaces/api-error-response";
+import type { Post } from "@/types/post";
 
 type Payload = {
   text?: string;
   files?: File[];
-}
+};
 
 export class CreatePostError extends Error {
   constructor(public response: ApiErrorResponse) {
@@ -18,7 +15,7 @@ export class CreatePostError extends Error {
   }
 }
 
-export const createPost = async (payload: Payload): Promise<Response> => {
+export const createPost = async (payload: Payload): Promise<Post> => {
   const { $api } = useNuxtApp();
 
   try {
@@ -36,7 +33,7 @@ export const createPost = async (payload: Payload): Promise<Response> => {
       });
     }
 
-    return await $api<Response>('/api/v1/posts', {
+    return await $api<Post>('/api/v1/posts', {
       method: 'POST',
       body: {
         ...(payload.text ? { text: payload.text } : {}),

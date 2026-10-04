@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from "@nuxt/ui";
 import type { User } from "~/types/user";
-import SignOutModal from "./SignOutModal.vue";
 import defaultProfile from "~/assets/svgs/default-profile.svg";
+import ConfirmModal from "@/components/customs/ConfirmModal.vue";
 
 interface Props {
   me: User
@@ -16,7 +16,7 @@ const emit = defineEmits<{
   "sign-out": [];
 }>();
 
-const signOutModalOpen = ref(false);
+const activeModal = ref<'sign-out' | null>(null);
 
 const items = ref<DropdownMenuItem[]>(
   [
@@ -38,7 +38,7 @@ const items = ref<DropdownMenuItem[]>(
       label: 'Sign out',
       icon: 'i-lucide-log-out',
       onSelect: () => {
-        signOutModalOpen.value = true;
+        activeModal.value = 'sign-out';
       }
     }
   ],
@@ -100,8 +100,18 @@ const items = ref<DropdownMenuItem[]>(
     </template>
   </UDropdownMenu>
 
-  <SignOutModal
-    v-model:open="signOutModalOpen"
-    @confirm="emit('sign-out')"
+  <ConfirmModal
+    :open="activeModal === 'sign-out'"
+    title="Sign out?"
+    message="You will be signed out of all your accounts."
+    confirm-button-text="Sign out"
+    @update:open="activeModal = 'sign-out'"
+    @confirm="() => {
+      emit('sign-out');
+      activeModal = null;
+    }"
+    @cancel="() => {
+      activeModal = null;
+    }"
   />
 </template>
