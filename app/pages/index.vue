@@ -13,7 +13,7 @@ import { followingPostsInfiniteQuery } from '@/queries/following-posts.infinite-
 import { toggleRepost } from '@/functions/toggle-repost';
 import { toggleLike } from '@/functions/toggle-like';
 import { toggleSave } from '@/functions/toggle-save';
-import PostCard from '@/components/customs/PostCard.vue';
+import PostList from '@/components/customs/PostList.vue';
 import ImageLightbox from '@/components/customs/ImageLightbox.vue';
 import CreateCommentModal from '@/components/customs/CreateCommentModal.vue';
 import type { Post } from '@/types/post';
@@ -34,6 +34,8 @@ const feedCookie = useCookie<Feed>('active_feed', {
 
 const activeFeed = ref<Feed>(feedCookie.value);
 const activeModal = ref<'create-post' | 'create-comment' | 'update-post' | 'delete-post' | null>(null);
+
+const { switchTo } = useFeedScroll(activeFeed);
 
 const previewPost = ref<Post | null>(null);
 
@@ -63,6 +65,29 @@ const { data: me } = useQuery(meQuery());
 
 const discoverPosts = useInfiniteQuery(discoverPostsInfiniteQuery());
 const followingPosts = useInfiniteQuery(followingPostsInfiniteQuery());
+
+const activeQuery = computed(() =>
+  activeFeed.value === 'discover' ? discoverPosts : followingPosts
+);
+
+const isLoading = computed(
+  () => discoverPosts.isPending.value || followingPosts.isPending.value
+);
+
+const isError = computed(() => activeQuery.value.isError.value);
+const hasNextPage = computed(() => activeQuery.value.hasNextPage.value);
+const isFetchingNextPage = computed(
+  () => discoverPosts.isFetchingNextPage.value || followingPosts.isFetchingNextPage.value
+);
+
+const loadMore = () => {
+  const query = activeQuery.value;
+  if (query.hasNextPage.value && !query.isFetchingNextPage.value) {
+    query.fetchNextPage();
+  }
+};
+
+const retry = () => activeQuery.value.refetch();
 
 const posts = computed(() => {
   if (activeFeed.value === 'discover') {
@@ -174,7 +199,7 @@ const deletePostMutation = useMutation({
       <button
         class="flex-1 py-3 font-medium cursor-pointer hover:bg-gray-800 relative"
         :class="activeFeed === 'discover' ? 'text-white' : 'text-gray-400'"
-        @click="activeFeed = 'discover'"
+        @click="switchTo('discover')"
       >
         Discover
         <span
@@ -185,7 +210,7 @@ const deletePostMutation = useMutation({
       <button
         class="flex-1 py-3 font-medium cursor-pointer hover:bg-gray-800 relative"
         :class="activeFeed === 'following' ? 'text-white' : 'text-gray-400'"
-        @click="activeFeed = 'following'"
+        @click="switchTo('following')"
       >
         Following
         <span
@@ -217,10 +242,14 @@ const deletePostMutation = useMutation({
       </div>
     </div>
 
-    <PostCard
-      v-for="post in posts"
-      :key="post.id"
-      :post
+    <PostList
+      :posts
+      :is-loading="isLoading"
+      :is-error="isError"
+      :has-next-page="hasNextPage"
+      :is-fetching-next-page="isFetchingNextPage"
+      @load-more="loadMore"
+      @retry="retry"
       @toggle-repost="(postId) => toggleRepostMutation.mutate({ postId })"
       @toggle-like="(postId) => toggleLikeMutation.mutate({ postId })"
       @toggle-save="(postId) => toggleSaveMutation.mutate({ postId })"
@@ -234,7 +263,6 @@ const deletePostMutation = useMutation({
         activeModal = 'delete-post';
       }"
       @open-update-post-modal="(p) => {
-        console.log(p.id);
         previewPost = p;
         activeModal = 'update-post';
       }"
