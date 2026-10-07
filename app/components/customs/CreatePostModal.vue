@@ -113,7 +113,7 @@ watch(
     :open="open"
     :dismissible="!isPending"
     :ui="{
-      content: 'max-w-150 rounded-lg ring ring-gray-700 bg-gray-800',
+      content: 'max-w-150 rounded-lg ring ring-gray-700 bg-gray-900',
       overlay: 'bg-black/70'
     }"
     @update:open="emit('update:open', $event)"

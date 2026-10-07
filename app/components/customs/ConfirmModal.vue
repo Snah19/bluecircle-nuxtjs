@@ -18,7 +18,7 @@ const emit = defineEmits<{
   <UModal
     :open="open"
     :ui="{
-      content: 'max-w-xs rounded-4xl ring ring-gray-700 bg-gray-800',
+      content: 'max-w-xs rounded-4xl ring ring-gray-700 bg-gray-900',
       overlay: 'bg-black/70'
     }"
     @update:open="emit('cancel')"    

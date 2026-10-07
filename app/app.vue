@@ -1,4 +1,5 @@
 <!-- app/app.vue -->
+
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
 import { meQuery } from '~/queries/me.query';
@@ -11,7 +12,9 @@ onServerPrefetch(async () => {
 </script>
 
 <template>
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
+  <UApp>
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
+  </UApp>
 </template>

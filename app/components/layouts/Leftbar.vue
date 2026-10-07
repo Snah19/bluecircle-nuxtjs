@@ -14,7 +14,7 @@ const route = useRoute();
 
 const tokenCookie = useCookie<string | null>('auth_token');
 
-const activeLabel = ref("Home");
+const activeLabel = ref<"Home" | "Notifications" | "Saved" | "Profile">("Home");
 
 watchEffect(() => {
   const currentLink = leftbarLinks.find((link) => link.href === route.path);

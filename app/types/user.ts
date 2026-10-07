@@ -4,10 +4,14 @@ export type User = {
   fullname: string;
   email: string;
   role: "USER" | "ADMIN";
-  profileImageUrl: string;
-  coverImageUrl: string;
-  bio: string;
-  link: string;
+  profileImageUrl: string | null;
+  coverImageUrl: string | null;
+  bio: string | null;
   createdAt: string;
   updatedAt: string;
+  meta: {
+    totalFollowers: number;
+    totalFollowing: number;
+    totalPosts: number;
+  }
 }
