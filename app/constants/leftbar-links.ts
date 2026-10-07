@@ -1,6 +1,6 @@
-import type { leftbarLink } from "~/types/leftbar-link";
+import type { LeftbarLink } from "~/types/leftbar-link";
 
-export const leftbarLinks: leftbarLink[] = [
+export const leftbarLinks: LeftbarLink[] = [
   {
     label: 'Home',
     icon: 'solar:home-linear',
@@ -23,6 +23,5 @@ export const leftbarLinks: leftbarLink[] = [
     label: 'Profile',
     icon: 'solar:user-linear',
     iconActive: 'solar:user-bold',
-    href: '/profile',
   },
 ];

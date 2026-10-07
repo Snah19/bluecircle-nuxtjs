@@ -1,7 +1,11 @@
 <script setup lang="ts">
-import { leftbarLinks } from '~/constants/leftbar-links';
+import { useQuery } from '@tanstack/vue-query';
+import { leftbarLinks } from '@/constants/leftbar-links';
+import { meQuery } from '@/queries/me.query';
 
 const activeLabel = defineModel<string>('activeLabel', { required: true });
+
+const { data: me } = useQuery(meQuery());
 </script>
 
 <template>
@@ -11,7 +15,7 @@ const activeLabel = defineModel<string>('activeLabel', { required: true });
       :key="l.label"
     >
       <NuxtLink
-        :to="l.href"
+        :to="l.label === 'Profile' ? `/profile/${me?.username}` : l.href"
         class="flex items-center gap-3 w-full p-2 rounded-full cursor-pointer hover:bg-gray-800"
         :class="cn(
           activeLabel === l.label && 'font-bold'
