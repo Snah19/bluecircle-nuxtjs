@@ -2,5 +2,6 @@ export type LeftbarLink = {
   label: 'Home' | 'Notifications' | 'Saved' | 'Profile';
   icon: string;
   iconActive: string;
-  href?: string;
+  href: string;
+  active: boolean;
 };

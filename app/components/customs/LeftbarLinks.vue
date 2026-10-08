@@ -1,11 +1,43 @@
+<!-- app.components/customs/LeftbarLinks.vue -->
+
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
-import { leftbarLinks } from '@/constants/leftbar-links';
 import { meQuery } from '@/queries/me.query';
+import type { LeftbarLink } from '@/types/leftbar-link';
 
-const activeLabel = defineModel<string>('activeLabel', { required: true });
-
+const route = useRoute();
 const { data: me } = useQuery(meQuery());
+
+const leftbarLinks = computed<LeftbarLink[]>(() => [
+  {
+    label: 'Home',
+    icon: 'solar:home-linear',
+    iconActive: 'solar:home-bold',
+    href: '/',
+    active: route.path === '/',
+  },
+  {
+    label: 'Notifications',
+    icon: 'solar:bell-linear',
+    iconActive: 'solar:bell-bold',
+    href: '/notifications',
+    active: route.path === '/notifications',
+  },
+  {
+    label: 'Saved',
+    icon: 'solar:bookmark-linear',
+    iconActive: 'solar:bookmark-bold',
+    href: '/saved',
+    active: route.path === '/saved',
+  },
+  {
+    label: 'Profile',
+    icon: 'solar:user-linear',
+    iconActive: 'solar:user-bold',
+    href: `/profile/${me.value?.username}`,
+    active: !!me.value?.username && route.params.username === me.value.username,
+  },
+]);
 </script>
 
 <template>
@@ -15,25 +47,24 @@ const { data: me } = useQuery(meQuery());
       :key="l.label"
     >
       <NuxtLink
-        :to="l.label === 'Profile' ? `/profile/${me?.username}` : l.href"
+        :to="l.href"
         class="flex items-center gap-3 w-full p-2 rounded-full cursor-pointer hover:bg-gray-800"
         :class="cn(
-          activeLabel === l.label && 'font-bold'
+          l.active && 'font-bold'
         )"
-        @click="activeLabel = l.label"
       >
         <Icon
           :name="l.icon"
           :class="cn(
             'text-2xl size-6 shrink-0',
-            activeLabel !== l.label ? 'block' : 'hidden',
+            !l.active ? 'block' : 'hidden',
           )"
         />
         <Icon
           :name="l.iconActive"
           :class="cn(
             'text-2xl size-6 shrink-0',
-            activeLabel === l.label ? 'block' : 'hidden'
+            l.active ? 'block' : 'hidden'
           )"
         />
         <span>

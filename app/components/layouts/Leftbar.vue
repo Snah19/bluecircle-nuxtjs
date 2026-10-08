@@ -5,23 +5,13 @@ import { signOut } from '~/functions/sign-out.ts';
 import Account from '../customs/Account.vue';
 import JoinTheConversation from '../customs/JoinTheConversation.vue';
 import LeftbarLinks from '../customs/LeftbarLinks.vue';
-import { leftbarLinks } from '~/constants/leftbar-links';
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
 import { meQuery } from '~/queries/me.query';
 
 const queryClient = useQueryClient();
-const route = useRoute();
 
 const tokenCookie = useCookie<string | null>('auth_token');
-
-const activeLabel = ref<"Home" | "Notifications" | "Saved" | "Profile">("Home");
-
-watchEffect(() => {
-  const currentLink = leftbarLinks.find((link) => link.href === route.path);
-  if (currentLink) {
-    activeLabel.value = currentLink.label;
-  }
-});
 
 if (import.meta.server) {
   await queryClient
@@ -61,9 +51,7 @@ const signoutMutation = useMutation({
         />
       </div>
       <div>
-        <LeftbarLinks
-          v-model:active-label="activeLabel"
-        />
+        <LeftbarLinks />
       </div>
     </div>
 
