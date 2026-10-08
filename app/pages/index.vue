@@ -336,6 +336,7 @@ const deletePostMutation = useMutation({
     title="Delete this post?"
     message="If you remove this post, you won't be able to recover it."
     confirm-button-text="Delete"
+    :is-pending="deletePostMutation.isPending.value"
     @update:open="activeModal = 'delete-post'"
     @confirm="() => {
       if (!previewPost) {
