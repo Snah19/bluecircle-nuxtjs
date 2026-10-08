@@ -4,6 +4,7 @@ interface Props {
   title: string;
   message: string;
   confirmButtonText: string;
+  isPending?: boolean;
 };
 
 const props = defineProps<Props>();
@@ -40,11 +41,18 @@ const emit = defineEmits<{
             @click="emit('confirm')"
           >
             {{ confirmButtonText }}
+
+            <Icon
+              v-if="isPending"
+              name="lucide:loader-circle"
+              class="size-4 animate-spin"
+            />
           </button>
 
           <button
             class="h-11 font-medium rounded-full cursor-pointer transition-colors bg-gray-700 hover:bg-gray-600 text-white"
             @click="emit('cancel')"
+            :disabled="isPending"
           >
             Cancel
           </button>

@@ -84,13 +84,13 @@ const activeQuery = computed(() => {
 });
 
 const isLoading = computed(
-  () => userPosts.isPending.value
+  () => userPosts.isPending.value || userReposts.isPending.value || userLikedPosts.isPending.value
 );
 
 const isError = computed(() => activeQuery.value.isError.value);
 const hasNextPage = computed(() => activeQuery.value.hasNextPage.value);
 const isFetchingNextPage = computed(
-  () => userPosts.isFetchingNextPage.value || userReposts.isFetchNextPageError.value
+  () => userPosts.isFetchingNextPage.value || userReposts.isFetchNextPageError.value || userLikedPosts.isFetchNextPageError.value
 );
 
 const loadMore = () => {
@@ -463,6 +463,7 @@ useHead({
     title="Delete this post?"
     message="If you remove this post, you won't be able to recover it."
     confirm-button-text="Delete"
+    :is-pending="deletePostMutation.isPending.value"
     @update:open="activeModal = 'delete-post'"
     @confirm="() => {
       if (!previewPost) {
