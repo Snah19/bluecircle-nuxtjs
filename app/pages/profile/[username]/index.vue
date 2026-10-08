@@ -23,6 +23,7 @@ import { userLikedPostsInfiniteQuery } from '@/queries/user-liked-posts.infinite
 import { deletePost } from '@/functions/delete-post';
 import { updatePost } from '@/functions/update-post';
 import { updateProfile } from '@/functions/update-profile';
+import { toggleFollow } from '@/functions/toggle-follow';
 
 type Tab = 'posts' | 'reposts' | 'likes';
 type Modal = 'edit-profile' | 'create-comment' | 'update-post' | 'delete-post' | null;
@@ -52,7 +53,17 @@ const openLightbox = (payload: { imageUrls: string[]; index: number }) => {
 const previewPost = ref<Post | null>(null);
 
 const { data: me } = useQuery(meQuery());
-const { data: user } = useQuery(userQuery(username.value));
+
+if (import.meta.server) {
+  await queryClient
+    .query(userQuery(username.value))
+    .catch(() => {});
+}
+
+const { data: user } = useQuery(
+  computed(() => userQuery(username.value)),
+);
+
 const userPosts = useInfiniteQuery(
   userPostsInfiniteQuery(username.value),
 );
@@ -104,6 +115,17 @@ const updateProfileMutation = useMutation({
   onSuccess: (data) => {
     console.log(data);
     activeModal.value = null;
+    queryClient.invalidateQueries({ queryKey: ['users', username.value] });
+  },
+  onError: (error) => {
+    console.error(error);
+  },
+});
+
+const toggleFollowMutation = useMutation({
+  mutationFn: toggleFollow,
+  onSuccess: (data) => {
+    console.log(data);
     queryClient.invalidateQueries({ queryKey: ['users', username.value] });
   },
   onError: (error) => {
@@ -251,9 +273,16 @@ useHead({
 
           <button
             v-if="user && !isOwner"
-            class="py-2 px-4 text-sm rounded-full cursor-pointer bg-blue-500 hover:bg-blue-600"
+            :class="cn(
+              'py-2 px-4 text-sm rounded-full cursor-pointer capitalize bg-gray-800 hover:bg-gray-700',
+              (
+                user.viewer.relationshipStatus === 'follow' ||
+                user.viewer.relationshipStatus === 'follow back'
+              ) && 'bg-blue-500 hover:bg-blue-600',
+            )"
+            @click="toggleFollowMutation.mutate({ userId: user.id })"
           >
-            Follow
+            {{ user.viewer.relationshipStatus }}
           </button>
         </div>
         <div v-if="user">
@@ -300,7 +329,10 @@ useHead({
     >
       <button
         class="relative flex-1 py-2 cursor-pointer"
-        @click="activeTab = 'posts'"
+        @click="() => {
+          activeTab = 'posts';
+          queryClient.invalidateQueries({ queryKey: ['users', 'posts'] });
+        }"
       >
         Posts
         <span
@@ -310,7 +342,10 @@ useHead({
       </button>
       <button
         class="relative flex-1 py-2 cursor-pointer"
-        @click="activeTab = 'reposts'"
+        @click="() => {
+          activeTab = 'reposts';
+          queryClient.invalidateQueries({ queryKey: ['users', 'reposts'] });
+        }"
       >
         Reposts
         <span
@@ -320,7 +355,10 @@ useHead({
       </button>
       <button
         class="relative flex-1 py-2 cursor-pointer"
-        @click="activeTab = 'likes'"
+        @click="() => {
+          activeTab = 'likes';
+          queryClient.invalidateQueries({ queryKey: ['users', 'liked-posts'] });
+        }"
       >
         Likes
         <span
