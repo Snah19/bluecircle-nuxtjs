@@ -14,4 +14,7 @@ export type User = {
     totalFollowing: number;
     totalPosts: number;
   }
+  viewer: {
+    relationshipStatus: "follow" | "following" | "follow back" | "friend";
+  }
 }
