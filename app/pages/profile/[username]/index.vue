@@ -36,6 +36,7 @@ const tabCookie = useCookie<Tab>('profile_tab', {
 });
 
 const route = useRoute();
+const router = useRouter();
 const username = computed(() => route.params.username as string);
 const queryClient = useQueryClient();
 
@@ -227,6 +228,16 @@ const deletePostMutation = useMutation({
   },
 });
 
+const goBack = () => {
+  if (window.history.state?.back) {
+    router.back();
+  }
+  else {
+    navigateTo('/');
+  }
+};
+
+
 const isOwner = computed(() => !!me.value && me.value.id === user.value?.id);
 
 useHead({
@@ -245,7 +256,10 @@ useHead({
         />
       </div>
 
-      <button class="absolute top-4 left-4 flex justify-center items-center size-8 rounded-full cursor-pointer bg-gray-900 hover:bg-gray-700">
+      <button
+        class="absolute top-4 left-4 flex justify-center items-center size-8 rounded-full cursor-pointer bg-gray-900 hover:bg-gray-700"
+        @click="goBack"
+      >
         <Icon name="lucide:arrow-left" class="size-5" />
       </button>
 
@@ -295,6 +309,7 @@ useHead({
           <div class="flex gap-x-2">
             <NuxtLink
               class="text-sm cursor-pointer hover:underline"
+              :href="`/profile/${username}/followers`"
             >
               <span class="font-bold">
                 {{ user.meta.totalFollowers }}
@@ -329,7 +344,7 @@ useHead({
       </div>
     </div>
 
-    <p v-if="user" class="px-4 text-sm">
+    <p v-if="user" class="px-4 text-sm whitespace-pre-line">
       {{ user.bio }}
     </p>
 
