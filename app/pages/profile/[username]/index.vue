@@ -230,7 +230,7 @@ const deletePostMutation = useMutation({
 const isOwner = computed(() => !!me.value && me.value.id === user.value?.id);
 
 useHead({
-  title: () => user.value ? `${user.value.fullname} (@${user.value.username}) - Bluecircle` : 'Profile - Bluecircle',
+  title: () => `@${username.value} - Bluecircle`,
 });
 </script>
 
@@ -293,7 +293,9 @@ useHead({
             {{ `@${user.username}` }}
           </p>
           <div class="flex gap-x-2">
-            <NuxtLink class="text-sm cursor-pointer hover:underline">
+            <NuxtLink
+              class="text-sm cursor-pointer hover:underline"
+            >
               <span class="font-bold">
                 {{ user.meta.totalFollowers }}
               </span>
@@ -302,7 +304,10 @@ useHead({
               </span>
             </NuxtLink>
 
-            <NuxtLink class="text-sm cursor-pointer hover:underline">
+            <NuxtLink
+              class="text-sm cursor-pointer hover:underline"
+              :href="`/profile/${username}/follows`"
+            >
               <span class="font-bold">
                 {{ user.meta.totalFollowing }}
               </span>
@@ -311,24 +316,29 @@ useHead({
               </span>
             </NuxtLink>
 
-            <NuxtLink class="text-sm cursor-pointer hover:underline">
+            <p class="text-sm">
               <span class="font-bold">
                 {{ user.meta.totalPosts }}
               </span>
               <span class="text-gray-400">
                 Posts
               </span>
-            </NuxtLink>
+            </p>
           </div>
         </div>
       </div>
     </div>
+
+    <p v-if="user" class="px-4 text-sm">
+      {{ user.bio }}
+    </p>
+
     <div
       v-if="user"
       class="z-50 sticky top-0 flex border-b border-gray-700 bg-gray-900"
     >
       <button
-        class="relative flex-1 py-2 cursor-pointer"
+        class="relative flex-1 py-4 cursor-pointer"
         @click="() => {
           activeTab = 'posts';
           queryClient.invalidateQueries({ queryKey: ['users', 'posts'] });
@@ -341,7 +351,7 @@ useHead({
         />
       </button>
       <button
-        class="relative flex-1 py-2 cursor-pointer"
+        class="relative flex-1 py-4 cursor-pointer"
         @click="() => {
           activeTab = 'reposts';
           queryClient.invalidateQueries({ queryKey: ['users', 'reposts'] });
@@ -354,7 +364,7 @@ useHead({
         />
       </button>
       <button
-        class="relative flex-1 py-2 cursor-pointer"
+        class="relative flex-1 py-4 cursor-pointer"
         @click="() => {
           activeTab = 'likes';
           queryClient.invalidateQueries({ queryKey: ['users', 'liked-posts'] });
