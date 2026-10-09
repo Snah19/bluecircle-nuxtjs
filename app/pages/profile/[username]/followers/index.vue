@@ -1,9 +1,11 @@
+<!-- app/pages/profile/[username]/followers -->
+
 <script setup lang="ts">
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
 import { userQuery } from '@/queries/user.query';
-import { followingsInfiniteQuery } from '~/queries/followings.infinite-query';
 import { toggleFollow } from '@/functions/toggle-follow';
 import UserList from '~/components/customs/UserList.vue';
+import { followersInfiniteQuery } from '@/queries/followers.infinite-query';
 
 const route = useRoute();
 const router = useRouter();
@@ -20,26 +22,26 @@ const { data: user } = useQuery(
   computed(() => userQuery(username.value)),
 );
 
-const followings = useInfiniteQuery(
-  followingsInfiniteQuery(username.value),
+const followers = useInfiniteQuery(
+  followersInfiniteQuery(username.value),
 );
 
-const users = computed(() => followings.data.value?.pages.flatMap((page) => page.data) ?? []);
+const users = computed(() => followers.data.value?.pages.flatMap((page) => page.data) ?? []);
 
 const loadMore = () => {
-  if (followings.hasNextPage.value && !followings.isFetchingNextPage.value) {
-    followings.fetchNextPage();
+  if (followers.hasNextPage.value && !followers.isFetchingNextPage.value) {
+    followers.fetchNextPage();
   }
 };
 
-const retry = () => followings.refetch();
+const retry = () => followers.refetch();
 
 const toggleFollowMutation = useMutation({
   mutationFn: toggleFollow,
   onSuccess: (data) => {
     console.log(data);
     Promise.all([
-      queryClient.invalidateQueries({ queryKey: [username.value, 'followings'] }),
+      queryClient.invalidateQueries({ queryKey: [username.value, 'followers'] }),
       queryClient.invalidateQueries({ queryKey: ['users', username.value] }),
     ]);
   },
@@ -77,17 +79,17 @@ useHead({
           {{ `@${user?.username}` }}
         </h1>
         <p class="text-xs">
-          {{ user?.meta.totalFollowing }} following
+          {{ user?.meta.totalFollowers }} {{ user?.meta.totalFollowers === 1 ? 'follower' : 'followers' }}
         </p>
       </div>
     </div>
     
     <UserList
       :users
-      :isLoading="followings.isLoading.value"
-      :isError="followings.isError.value"
-      :hasNextPage="followings.hasNextPage.value"
-      :isFetchingNextPage=" followings.isFetchingNextPage.value || followings.isFetchingNextPage.value"
+      :isLoading="followers.isLoading.value"
+      :isError="followers.isError.value"
+      :hasNextPage="followers.hasNextPage.value"
+      :isFetchingNextPage=" followers.isFetchingNextPage.value || followers.isFetchingNextPage.value"
       @load-more="loadMore"
       @retry="retry"
       @toggle-follow="(userId) => toggleFollowMutation.mutate({ userId })"

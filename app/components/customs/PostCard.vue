@@ -136,13 +136,19 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
     <div class="flex-1 space-y-2">
       <div>
         <p class="text-xs">
-          <span class="font-bold">
+          <NuxtLink
+            class="font-bold hover:underline"
+            :href="`/profile/${post.user.username}`"
+          >
             {{ post.user.fullname }}
-          </span>
+          </NuxtLink>
             &bull;
-          <span class="text-gray-400">
+          <NuxtLink
+            class="text-gray-400 hover:underline"
+            :href="`/profile/${post.user.username}`"
+          >
             @{{ post.user.username }}
-          </span>
+          </NuxtLink>
             &bull;
           <span class="text-gray-400">
             {{ formatRelativeTime(new Date(post.createdAt)) }}

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { User } from '@/types/user';
 import defaultProfile from '@/assets/svgs/default-profile.svg';
+import { useQuery } from '@tanstack/vue-query';
+import { meQuery } from '@/queries/me.query';
 
 interface Props {
   users: User[];
@@ -18,6 +20,8 @@ const emit = defineEmits<{
   retry: [];
 }>();
 
+const { data: me } = useQuery(meQuery());
+
 const sentinel = ref<HTMLElement | null>(null);
 
 useInfiniteScroll(sentinel, {
@@ -31,9 +35,10 @@ useInfiniteScroll(sentinel, {
 <template>
   <LoadingSpinner v-if="isLoading" />
   
-  <div
+  <NuxtLink
     v-for="user in users"
     class="flex gap-x-4 min-h-24.25 p-4 border-b border-gray-700 cursor-pointer"
+    :href="`/profile/${user.username}`"
   >
     <div class="shrink-0 size-10 border border-gray-500 rounded-full overflow-hidden">
       <img
@@ -56,6 +61,7 @@ useInfiniteScroll(sentinel, {
         </div>
 
         <button
+          v-if="me?.id !== user.id"
           :class="cn(
             'py-2 px-4 text-sm rounded-full cursor-pointer capitalize bg-gray-800 hover:bg-gray-700',
             (
@@ -63,7 +69,7 @@ useInfiniteScroll(sentinel, {
               user.viewer.relationshipStatus === 'follow back'
             ) && 'bg-blue-500 hover:bg-blue-600',
           )"
-          @click="emit('toggle-follow', user.id)"
+          @click.prevent.stop="emit('toggle-follow', user.id)"
         >
           {{ user.viewer.relationshipStatus }}
         </button>
@@ -72,7 +78,7 @@ useInfiniteScroll(sentinel, {
         {{ user.bio }}
       </p>
     </div>
-  </div>
+  </NuxtLink>
 
   <div ref="sentinel" class="h-px" />
 
