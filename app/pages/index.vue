@@ -197,7 +197,7 @@ const deletePostMutation = useMutation({
     </div>
     <div class="sticky top-0 z-50 flex border-b border-gray-700 bg-gray-900">
       <button
-        class="flex-1 py-3 font-medium cursor-pointer hover:bg-gray-800 relative"
+        class="flex-1 py-4 font-medium cursor-pointer hover:bg-gray-800 relative"
         :class="activeFeed === 'discover' ? 'text-white' : 'text-gray-400'"
         @click="switchTo('discover')"
       >
@@ -208,7 +208,7 @@ const deletePostMutation = useMutation({
         />
       </button>
       <button
-        class="flex-1 py-3 font-medium cursor-pointer hover:bg-gray-800 relative"
+        class="flex-1 py-4 font-medium cursor-pointer hover:bg-gray-800 relative"
         :class="activeFeed === 'following' ? 'text-white' : 'text-gray-400'"
         @click="switchTo('following')"
       >
@@ -221,7 +221,7 @@ const deletePostMutation = useMutation({
     </div>
     <div
       v-if="me"
-      class="flex justify-between items-center p-4 border-b border-gray-700 cursor-pointer"
+      class="flex justify-between items-center p-4 border-b border-gray-700 cursor-pointer hover:bg-gray-800"
       @click="activeModal = 'create-post'"
     >
       <div class="flex items-center gap-x-4">
@@ -267,6 +267,7 @@ const deletePostMutation = useMutation({
         activeModal = 'update-post';
       }"
     />
+  </main>
 
     <ImageLightbox
       :open="isLightboxOpen"
@@ -274,7 +275,6 @@ const deletePostMutation = useMutation({
       :initial-index="lightbox?.index ?? 0"
       @close="isLightboxOpen = false"
     />
-  </main>
 
   <CreatePostModal
     v-if="me"

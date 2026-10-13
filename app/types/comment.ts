@@ -5,10 +5,17 @@ export type Comment = {
   postId: string;
   userId: string;
   parentId: string | null;
-  mentionedUserId: string;
+  repliedToCommentId: string | null;
   text: string;
   createdAt: string;
   updatedAt: string;
   user: User;
-  mentionedUser: User | null;
+  repliedToComment: Comment | null;
+  meta: {
+    totalLikes: number;
+    totalReplies: number;
+  };
+  viewer: {
+    isLiked: boolean;
+  };
 };

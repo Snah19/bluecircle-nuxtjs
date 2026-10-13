@@ -5,10 +5,10 @@ import type { ApiErrorResponse } from '@/interfaces/api-error-response';
 import type { PaginatedResponse } from '@/interfaces/paginated-response';
 import type { Post } from '@/types/post';
 
-export class GetUserPosts extends Error {
+export class GetUserPostsError extends Error {
   constructor(public response: ApiErrorResponse) {
     super(response.message);
-    this.name = 'GetUserPosts';
+    this.name = 'GetUserPostsError';
   }
 }
 
@@ -28,10 +28,10 @@ export const getUserPosts = async ({ username, page = 1, limit = 15 }: Payload) 
   }
   catch (error) {
     if (error instanceof FetchError && error.data) {
-      throw new GetUserPosts(error.data as ApiErrorResponse);
+      throw new GetUserPostsError(error.data as ApiErrorResponse);
     }
 
-    throw new GetUserPosts({
+    throw new GetUserPostsError({
       message: 'Something went wrong',
       error: 'Unknown',
       statusCode: (error as FetchError)?.statusCode ?? 500,

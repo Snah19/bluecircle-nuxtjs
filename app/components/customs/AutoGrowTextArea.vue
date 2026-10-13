@@ -68,7 +68,7 @@ onMounted(() => {
     rows="1"
     :maxlength="maxLength"
     :placeholder="placeholder"
-    class="w-full outline-none bg-transparent placeholder:text-gray-400 placeholder:text-sm resize-none overflow-hidden"
+    class="w-full text-sm outline-none bg-transparent placeholder:text-gray-400 placeholder:text-sm resize-none overflow-hidden"
     @input="handleInput"
   />
 </template>

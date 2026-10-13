@@ -14,10 +14,10 @@ export class CreateCommentError extends Error {
 type Payload = {
   postId: string;
   text: string;
-  parentId?: string;
+  replyToCommentId?: string;
 };
 
-export const createComment = async ({ postId, text, parentId }: Payload) => {
+export const createComment = async ({ postId, text, replyToCommentId }: Payload) => {
   const { $api } = useNuxtApp();
 
   try {
@@ -25,7 +25,7 @@ export const createComment = async ({ postId, text, parentId }: Payload) => {
       method: 'POST',
       body: {
         text,
-        parentId,
+        replyToCommentId,
       },
     });
   }

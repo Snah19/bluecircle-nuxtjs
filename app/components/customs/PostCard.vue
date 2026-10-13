@@ -12,9 +12,12 @@ import { meQuery } from '@/queries/me.query';
 
 interface Props {
   post: Post;
+  isClickable?: boolean;
 };
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  isClickable: true,
+});
 const emit = defineEmits<{
   toggleRepost: [postId: string];
   toggleLike: [postId: string];
@@ -123,8 +126,21 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
 </script>
 
 <template>
-  <div class="flex gap-x-4 p-4 border-b border-gray-700 cursor-pointer">
-    <div class="shrink-0 size-10 border border-gray-500 rounded-full overflow-hidden">
+  <div
+    :class="cn(
+      'flex gap-x-4 p-4 border-b border-gray-700',
+      isClickable && 'cursor-pointer hover:bg-gray-800',
+    )"
+    @click="() => {
+      if (isClickable) {
+        navigateTo(`/post/${post.id}`);
+      }
+    }"
+  >
+    <NuxtLink
+      class="shrink-0 block size-10 border border-gray-500 rounded-full overflow-hidden"
+      :href="`/profile/${post.user.username}`"
+    >
       <img
         class="size-full object-cover"
         :src="post.user.profileImageUrl || defaultProfile"
@@ -132,7 +148,7 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
         height="auto"
         :alt="`${post.user.fullname}, ${post.user.username}`"
       />
-    </div>
+    </NuxtLink>
     <div class="flex-1 space-y-2">
       <div>
         <p class="text-xs">
@@ -210,7 +226,7 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
             @click.stop="emit('openCommentModal', post)"
           >
             <Icon name="lucide:message-circle" class="size-4" />
-            <span class="text-sm tracking-normal" v-if="post.meta.totalComments > 0">
+            <span class="text-xs tracking-normal" v-if="post.meta.totalComments > 0">
               {{ post.meta.totalComments }}
             </span>
           </button>
@@ -229,7 +245,7 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
             <span
               v-if="totalReposts > 0"
               :class="cn(
-                'text-sm',
+                'text-xs',
                 isReposted && 'text-green-500',
               )"
             >
@@ -251,7 +267,7 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
             <span
               v-if="totalLikes > 0"
               :class="cn(
-                'text-sm',
+                'text-xs',
                 isLiked && 'text-red-500',
               )"
             >
