@@ -3,46 +3,62 @@
 <script setup lang="ts">
 import defaultProfile from '@/assets/svgs/default-profile.svg';
 import AutoGrowTextArea from '@/components/customs/AutoGrowTextArea.vue';
+import type { Post } from '@/types/post';
+import type { Comment } from '@/types/comment';
+import { useQuery } from '@tanstack/vue-query';
+import { meQuery } from '@/queries/me.query';
 
 interface Props {
   open: boolean;
+  target: {
+    id: string;
+    profileImageUrl: string | null,
+    text: string;
+    imageUrls: string[];
+    parentId: string | null;
+  };
   isPending?: boolean;
-  myProfileImageUrl?: string | null;
-  text: string;
-  imageUrls: string[];
-  authorProfileUrl?: string | null;
+  type?: 'comment' | 'reply';
 };
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  type: 'comment',
+});
 
 const emit = defineEmits<{
-  'update:open': [open: boolean];
-  'create-comment': [text: string];
+  'close': [];
+  'submit': [text: string];
 }>();
 
+const { data: me } = useQuery(meQuery());
+
 const MAX_LENGTH = 400;
+const MAX_IMAGES = 4;
+
+const isPost = (value: Post | Comment): value is Post => 'imageUrls' in value;
 
 const commentText = ref('');
 const remaining = computed(() => MAX_LENGTH - commentText.value.length);
-const canCreateComment = computed(() => !props.isPending && commentText.value.trim().length > 0);
+const canSubmit = computed(() => !props.isPending && commentText.value.trim().length > 0);
 
-const MAX_IMAGES = 4;
+const imageUrls = computed(() => props.target.imageUrls);
+const visibleImageUrls = computed(() => imageUrls.value.slice(0, MAX_IMAGES));
+const extraImagesCount = computed(() => Math.max(0, imageUrls.value.length - MAX_IMAGES));
 
-const visibleImageUrls = computed(() => props.imageUrls.slice(0, MAX_IMAGES));
-const extraImagesCount = computed(() => Math.max(0, props.imageUrls.length - MAX_IMAGES));
-
-const createComment = () => {
-  if (!canCreateComment.value) {
+const submit = () => {
+  if (!canSubmit.value) {
     return;
   }
 
-  emit('create-comment', commentText.value);
+  emit('submit', commentText.value.trim());
 };
 
+// Start empty every time the modal opens.
+// Clearing on open (not on close) avoids an empty flash during the close animation.
 watch(
   () => props.open,
   (isOpen) => {
-    if (!isOpen) {
+    if (isOpen) {
       commentText.value = '';
     }
   }
@@ -57,7 +73,7 @@ watch(
       content: 'max-w-150 rounded-lg ring ring-gray-700 bg-gray-900',
       overlay: 'bg-black/70'
     }"
-    @update:open="emit('update:open', $event)"
+    @update:open="emit('close')"
   >
     <template #content>
       <div>
@@ -65,17 +81,17 @@ watch(
           <button
             class="text-sm cursor-pointer text-blue-500 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
             :disabled="isPending"
-            @click="emit('update:open', false)"
+            @click="emit('close')"
           >
             Cancel
           </button>
 
           <button
-            class="inline-flex items-center gap-x-2 py-2 px-4 text-sm rounded-full cursor-pointer bg-blue-500 hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed "
-            :disabled="!canCreateComment"
-            @click="createComment"
+            class="inline-flex items-center gap-x-2 py-2 px-4 text-sm capitalize rounded-full cursor-pointer bg-blue-500 hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="!canSubmit"
+            @click="submit"
           >
-            Comment
+            {{ type }}
             <Icon
               v-if="isPending"
               name="lucide:loader-circle"
@@ -90,16 +106,14 @@ watch(
               <div class="size-10 shrink-0 border border-gray-500 rounded-full overflow-hidden">
                 <img
                   class="size-full object-cover"
-                  :src="authorProfileUrl || defaultProfile"
-                  width="auto"
-                  height="auto"
+                  :src="target.profileImageUrl || defaultProfile"
                   alt=""
                 />
               </div>
 
               <div class="flex-1 text-sm">
                 <p>
-                  {{ text }}
+                  {{ target.text }}
                 </p>
               </div>
             </div>
@@ -107,9 +121,9 @@ watch(
             <div
               v-if="visibleImageUrls.length > 0"
               :class="cn(
-                'grid gap-0.5 size-16 overflow-hidden',
+                'shrink-0 grid gap-0.5 size-16 overflow-hidden',
                 visibleImageUrls.length === 2 && 'grid-cols-2',
-                visibleImageUrls.length >= 3 && 'grid-cols-2 grid-rows-2 aspect-video',
+                visibleImageUrls.length >= 3 && 'grid-cols-2 grid-rows-2',
               )"
             >
               <div
@@ -142,9 +156,7 @@ watch(
             <div class="size-10 shrink-0 border border-gray-500 rounded-full overflow-hidden">
               <img
                 class="w-full h-full object-cover"
-                :src="myProfileImageUrl || defaultProfile"
-                width="auto"
-                height="auto"
+                :src="me?.profileImageUrl || defaultProfile"
                 alt=""
               />
             </div>
@@ -153,7 +165,7 @@ watch(
               <AutoGrowTextArea
                 v-model="commentText"
                 :max-length="MAX_LENGTH"
-                placeholder="Write your comment"
+                :placeholder="type === 'comment' ? 'Write your comment' : 'Write your reply'"
                 :is-focused="open"
               />
             </div>

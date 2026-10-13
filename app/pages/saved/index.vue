@@ -21,6 +21,7 @@ useHead({
   title: 'Saved - Bluecircle'
 });
 
+const router = useRouter();
 const queryClient = useQueryClient();
 const lightbox = ref<{ imageUrls: string[]; index: number } | null>(null);
 const isLightboxOpen = ref(false);
@@ -114,12 +115,24 @@ const deletePostMutation = useMutation({
     console.error(error);
   },
 });
+
+const goBack = () => {
+  if (window.history.state?.back) {
+    router.back();
+  }
+  else {
+    navigateTo('/');
+  }
+};
 </script>
 
 <template>
   <main class="w-full min-h-screen">
     <div class="z-50 sticky top-0 flex items-center gap-x-4 p-4 border-b border-gray-700 bg-gray-900">
-      <button class="flex justify-center items-center size-8 rounded-full cursor-pointer bg-gray-900 hover:bg-gray-700">
+      <button
+        class="flex justify-center items-center size-8 rounded-full cursor-pointer bg-gray-900 hover:bg-gray-700"
+        @click="goBack"
+      >
         <Icon name="lucide:arrow-left" class="size-5" />
       </button>
 

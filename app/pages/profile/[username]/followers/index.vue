@@ -60,7 +60,7 @@ const goBack = () => {
 };
 
 useHead({
-  title: () => `People followed by @${username.value} - Bluecircle`,
+  title: () => `People following by @${username.value} - Bluecircle`,
 });
 </script>
 
