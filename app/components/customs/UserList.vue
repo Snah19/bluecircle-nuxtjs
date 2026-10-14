@@ -37,7 +37,7 @@ useInfiniteScroll(sentinel, {
   
   <NuxtLink
     v-for="user in users"
-    class="flex gap-x-4 min-h-24.25 p-4 border-b border-gray-700 cursor-pointer"
+    class="flex gap-x-4 min-h-24.25 py-2 px-4 border-b border-gray-700 cursor-pointer"
     :href="`/profile/${user.username}`"
   >
     <div class="shrink-0 size-10 border border-gray-500 rounded-full overflow-hidden">

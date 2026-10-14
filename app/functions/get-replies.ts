@@ -1,4 +1,4 @@
-// app/functions/get-post-detail.ts
+// app/functions/get-replies.ts
 
 import { FetchError } from 'ofetch';
 import type { ApiErrorResponse } from '@/interfaces/api-error-response';
