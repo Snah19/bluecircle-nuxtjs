@@ -136,7 +136,7 @@ const goBack = () => {
         <Icon name="lucide:arrow-left" class="size-5" />
       </button>
 
-      <h1 class="text-xl font-bold">Save Posts</h1>
+      <h1 class="text-xl font-bold">Saved Posts</h1>
     </div>
 
     <PostList

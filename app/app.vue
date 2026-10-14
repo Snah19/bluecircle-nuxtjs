@@ -3,11 +3,14 @@
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query';
 import { meQuery } from '~/queries/me.query';
+import { unreadNotificationsQuery } from './queries/unread-notifications.query';
 
-const { suspense } = useQuery(meQuery());
+const me = useQuery(meQuery());
+const unreadNotifications = useQuery(unreadNotificationsQuery());
 
 onServerPrefetch(async () => {
-  await suspense().catch(() => {});
+  await me.suspense().catch(() => {});
+  await unreadNotifications.suspense().catch(() => {});
 });
 </script>
 

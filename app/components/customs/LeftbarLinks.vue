@@ -4,9 +4,11 @@
 import { useQuery } from '@tanstack/vue-query';
 import { meQuery } from '@/queries/me.query';
 import type { LeftbarLink } from '@/types/leftbar-link';
+import { unreadNotificationsQuery } from '~/queries/unread-notifications.query';
 
 const route = useRoute();
 const { data: me } = useQuery(meQuery());
+const { data: unreadNotifications } = useQuery(unreadNotificationsQuery());
 
 const leftbarLinks = computed<LeftbarLink[]>(() => [
   {
@@ -53,20 +55,29 @@ const leftbarLinks = computed<LeftbarLink[]>(() => [
           l.active && 'font-bold'
         )"
       >
-        <Icon
-          :name="l.icon"
-          :class="cn(
-            'text-2xl size-6 shrink-0',
-            !l.active ? 'block' : 'hidden',
-          )"
-        />
-        <Icon
-          :name="l.iconActive"
-          :class="cn(
-            'text-2xl size-6 shrink-0',
-            l.active ? 'block' : 'hidden'
-          )"
-        />
+        <div class="relative">
+          <Icon
+            :name="l.icon"
+            :class="cn(
+              'relative text-2xl size-6 shrink-0',
+              !l.active ? 'block' : 'hidden',
+            )"
+          />
+          <Icon
+            :name="l.iconActive"
+            :class="cn(
+              'text-2xl size-6 shrink-0',
+              l.active ? 'block' : 'hidden'
+            )"
+          />
+
+          <span
+            v-if="l.label === 'Notifications' && unreadNotifications?.total && unreadNotifications?.total > 0"
+            class="absolute -top-1 -right-1 flex justify-center items-center text-xs size-4 rounded-full bg-blue-500"
+          >
+            {{ unreadNotifications.total }}
+          </span>
+        </div>
         <span>
           {{ l.label }}
         </span>
