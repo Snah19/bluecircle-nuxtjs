@@ -37,7 +37,13 @@ const activeModal = ref<'create-post' | 'create-comment' | 'update-post' | 'dele
 
 const { switchTo } = useFeedScroll(activeFeed);
 
-const previewPost = ref<Post | null>(null);
+const target = ref<{
+  id: string;
+  profileImageUrl: string | null,
+  text: string;
+  imageUrls: string[];
+  parentId: string | null;
+} | null>(null);
 
 const lightbox = ref<{ imageUrls: string[]; index: number } | null>(null);
 const isLightboxOpen = ref(false);
@@ -255,15 +261,33 @@ const deletePostMutation = useMutation({
       @toggle-save="(postId) => toggleSaveMutation.mutate({ postId })"
       @open-lightbox="openLightbox"
       @open-comment-modal="(p) => {
-        previewPost = p;
+        target = {
+          id: p.id,
+          profileImageUrl: p.user.profileImageUrl,
+          text: p.text,
+          imageUrls: p.imageUrls,
+          parentId: null,
+        };
         activeModal = 'create-comment';
       }"
       @open-delete-post-modal="(p) => {
-        previewPost = p;
+        target = {
+          id: p.id,
+          profileImageUrl: p.user.profileImageUrl,
+          text: p.text,
+          imageUrls: p.imageUrls,
+          parentId: null,
+        };
         activeModal = 'delete-post';
       }"
       @open-update-post-modal="(p) => {
-        previewPost = p;
+        target = {
+          id: p.id,
+          profileImageUrl: p.user.profileImageUrl,
+          text: p.text,
+          imageUrls: p.imageUrls,
+          parentId: null,
+        };
         activeModal = 'update-post';
       }"
     />
@@ -288,19 +312,17 @@ const deletePostMutation = useMutation({
   />
 
   <UpdatePostModal
-    v-if="previewPost"
+    v-if="target"
     :open="activeModal === 'update-post'"
-    :post="previewPost"
-    @update:open="(open) => {
-      activeModal = open ? 'update-post' : null;
-    }"
-    @update-post="(payload) => {
-      if (!previewPost) {
+    :target
+    @close="activeModal = null"
+    @submit="(payload) => {
+      if (!target) {
         return;
       }
 
       updatePostMutation.mutate({
-        postId: previewPost.id,
+        postId: target.id,
         ...payload,
       });
     }"
@@ -308,30 +330,27 @@ const deletePostMutation = useMutation({
   />
 
   <CreateCommentModal
-    v-if="previewPost"
+    v-if="target"
     :open="activeModal === 'create-comment'"
+    :target
     :is-pending="createCommentMutation.isPending.value"
-    :my-profile-image-url="me?.profileImageUrl"
-    :author-profile-url="previewPost.user.profileImageUrl"
-    :text="previewPost.text"
-    :image-urls="previewPost.imageUrls"
-    @update:open="(open) => {
-      activeModal = open ? 'create-comment' : null;
+    @close="() => {
+      activeModal = null;
     }"
-    @create-comment="(commentText) => {
-      if (!previewPost) {
+    @submit="(commentText) => {
+      if (!target) {
         return;
       }
 
       createCommentMutation.mutate({
-        postId: previewPost.id,
+        postId: target.id,
         text: commentText,
       });
     }"
   />
 
   <ConfirmModal
-    v-if="previewPost"
+    v-if="target"
     :open="activeModal === 'delete-post'"
     title="Delete this post?"
     message="If you remove this post, you won't be able to recover it."
@@ -339,12 +358,12 @@ const deletePostMutation = useMutation({
     :is-pending="deletePostMutation.isPending.value"
     @update:open="activeModal = 'delete-post'"
     @confirm="() => {
-      if (!previewPost) {
+      if (!target) {
         return;
       }
 
       deletePostMutation.mutate({
-        postId: previewPost.id,
+        postId: target.id,
       });
       activeModal = null;
     }"

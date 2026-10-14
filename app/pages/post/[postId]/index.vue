@@ -244,9 +244,35 @@ useHead({
       @toggle-like="(postId) => toggleLikeMutation.mutate({ postId })"
       @toggle-save="(postId) => toggleSaveMutation.mutate({ postId })"
       @open-lightbox="openLightbox"
-      @open-comment-modal="activeModal = 'create-comment'"
+      @open-comment-modal="() => {
+        if (!post) {
+          return;
+        }
+        
+        activeModal = 'create-comment';
+        target = {
+          id: post.id,
+          profileImageUrl: post.user.profileImageUrl,
+          text: post.text,
+          imageUrls: post.imageUrls,
+          parentId: null,
+        };
+      }"
       @open-delete-post-modal="activeModal = 'delete-post'"
-      @open-update-post-modal="activeModal = 'update-post'"
+      @open-update-post-modal="() => {
+        if (!post) {
+          return;
+        }
+
+        activeModal = 'update-post';
+        target = {
+          id: post.id,
+          profileImageUrl: post.user.profileImageUrl,
+          text: post.text,
+          imageUrls: post.imageUrls,
+          parentId: null,
+        };
+      }"
     />
 
     <div
@@ -450,13 +476,11 @@ useHead({
   />
 
   <UpdatePostModal
-    v-if="post"
+    v-if="target"
     :open="activeModal === 'update-post'"
-    :post
-    @update:open="(open) => {
-      activeModal = open ? 'update-post' : null;
-    }"
-    @update-post="(payload) => {
+    :target
+    @close="activeModal = null"
+    @submit="(payload) => {
       if (!post) {
         return;
       }
