@@ -9,15 +9,21 @@ import { meQuery } from '@/queries/me.query';
 
 interface Props {
   open: boolean;
+  target: {
+    id: string;
+    profileImageUrl: string | null,
+    text: string;
+    imageUrls: string[];
+    parentId: string | null;
+  };
   isPending?: boolean;
-  post: Post;
 };
 
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  'update:open': [open: boolean];
-  'update-post': [payload: {
+  'close': [];
+  'submit': [payload: {
     text: string;
     keptImageUrls: string[];
     files: File[];
@@ -43,13 +49,13 @@ const images = ref<ImageItem[]>([]);
 const remaining = computed(() => MAX_LENGTH - text.value.length);
 const canAddMoreImages = computed(() => images.value.length < MAX_IMAGES);
 const hasChanges = computed(() => {
-  const originalText = (props.post.text ?? '').trim();
+  const originalText = (props.target.text ?? '').trim();
   const keptCount = images.value.filter((img) => !img.file).length;
 
   return (
     text.value.trim() !== originalText ||
     images.value.some((img) => img.file) ||
-    keptCount !== props.post.imageUrls.length
+    keptCount !== props.target.imageUrls.length
   );
 });
 const canUpdatePost = computed(() =>
@@ -115,7 +121,7 @@ const updatePost = () => {
     .filter((img) => !img.file)
     .map((img) => img.previewUrl);
 
-  emit('update-post', {
+  emit('submit', {
     text: text.value.trim(),
     keptImageUrls,
     files: images.value
@@ -125,8 +131,8 @@ const updatePost = () => {
 };
 
 const initFromPost = () => {
-  text.value = props.post.text ?? '';
-  images.value = props.post.imageUrls.map((url) => ({
+  text.value = props.target.text ?? '';
+  images.value = props.target.imageUrls.map((url) => ({
     id: url,
     previewUrl: url,
   }));
@@ -160,7 +166,7 @@ watch(
       content: 'max-w-150 rounded-lg ring ring-gray-700 bg-gray-800',
       overlay: 'bg-black/70'
     }"
-    @update:open="emit('update:open', $event)"
+    @update:open="emit('close')"
   >
     <template #content>
       <div>
@@ -168,7 +174,7 @@ watch(
           <button
             class="text-sm cursor-pointer text-blue-500 hover:text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
             :disabled="isPending"
-            @click="emit('update:open', false)"
+            @click="emit('close')"
           >
             Cancel
           </button>
