@@ -3,7 +3,7 @@ import blueCircle from '~/assets/svgs/blue-circle.svg';
 </script>
 
 <template>
-  <div class="space-y-2">
+  <div class="hidden min-[1300px]:block space-y-2 p-4">
     <img
       :src="blueCircle"
       alt="bluecircle"

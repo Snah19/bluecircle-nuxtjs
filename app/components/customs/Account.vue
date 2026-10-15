@@ -12,7 +12,6 @@ const props = defineProps<Props>();
 
 const emit = defineEmits<{
   "go-to-profile": [];
-  "add-another-account": [];
   "sign-out": [];
 }>();
 
@@ -26,13 +25,6 @@ const items = ref<DropdownMenuItem[]>(
       onSelect: () => {
         emit("go-to-profile");
       },
-    },
-    {
-      label: 'Add another account',
-      icon: 'i-lucide-plus',
-      onSelect: () => {
-        emit("add-another-account");
-      }
     },
     {
       label: 'Sign out',
@@ -50,13 +42,13 @@ const items = ref<DropdownMenuItem[]>(
     :items="items"
     :content="{ align: 'start', side: 'top' }"
     :ui="{
-      content: 'w-(--reka-dropdown-menu-trigger-width) bg-gray-800',
+      content: 'w-fit min-[1300px]:w-(--reka-dropdown-menu-trigger-width) bg-gray-800',
       item: 'cursor-pointer data-highlighted:rounded data-highlighted:bg-gray-700'
     }"
   >
     <template #default="{ open }">
       <button
-        class="flex items-center gap-x-2 w-full h-12 px-2 rounded-full group cursor-pointer hover:bg-gray-800 overflow-hidden"
+        class="flex items-center gap-x-2 min-[1300px]:w-full h-12 px-2 rounded-full group cursor-pointer hover:bg-gray-800 overflow-hidden"
         :class="{ 'bg-gray-800': open }"
       >
         <div
@@ -74,7 +66,7 @@ const items = ref<DropdownMenuItem[]>(
           />
         </div>
 
-        <div class="flex gap-x-2 justify-between items-center w-full min-w-0">
+        <div class="hidden min-[1300px]:flex gap-x-2 justify-between items-center w-full min-w-0">
           <div class="flex flex-col items-start w-full min-w-0 overflow-hidden">
             <p
               class="w-full max-w-full text-sm text-left whitespace-nowrap overflow-hidden text-ellipsis"

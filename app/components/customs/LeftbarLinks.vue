@@ -50,14 +50,14 @@ const leftbarLinks = computed<LeftbarLink[]>(() => [
 </script>
 
 <template>
-  <ul class="space-y-2">
+  <ul class="min-[1300px]:w-full space-y-2">
     <li
       v-for="l in leftbarLinks"
       :key="l.label"
     >
       <NuxtLink
         :to="l.href"
-        class="flex items-center gap-3 w-full p-2 rounded-full cursor-pointer hover:bg-gray-800"
+        class="flex items-center gap-3 w-fit min-[1300px]:w-full p-2 rounded-full cursor-pointer hover:bg-gray-800"
         :class="cn(
           l.active && 'font-bold'
         )"
@@ -85,7 +85,8 @@ const leftbarLinks = computed<LeftbarLink[]>(() => [
             {{ unreadNotifications.total }}
           </span>
         </div>
-        <span>
+
+        <span class="hidden min-[1300px]:flex">
           {{ l.label }}
         </span>
       </NuxtLink>
