@@ -40,23 +40,19 @@ const signoutMutation = useMutation({
 </script>
 
 <template>
-  <aside class="sticky top-0 self-start min-w-60 min-h-screen p-4 border-r border-gray-700">
-    <div v-if="me">
-      <div class="mb-3">
-        <Account
-          :me="me"
-          @go-to-profile="() => { console.log('go to profile'); }"
-          @add-another-account="() => { console.log('add another account'); }"
-          @sign-out="() => { signoutMutation.mutate(); }"
-        />
-      </div>
-      <div>
-        <LeftbarLinks />
-      </div>
+  <aside class="sticky top-0 self-start hidden min-[800px]:block min-w-20 min-[1300px]:min-w-60 min-h-screen border-r border-gray-700">
+    <div
+      v-if="me"
+      class="flex flex-col items-center min-[1300px]:items-start gap-y-3 p-4 pl-0"
+    >
+      <Account
+        :me="me"
+        @go-to-profile="navigateTo(`/profile/${me.username}`)"
+        @sign-out="() => { signoutMutation.mutate(); }"
+      />
+      <LeftbarLinks />
     </div>
 
-    <div v-if="!me">
-      <JoinTheConversation />
-    </div>
+    <JoinTheConversation v-if="!me" />
   </aside>
 </template>

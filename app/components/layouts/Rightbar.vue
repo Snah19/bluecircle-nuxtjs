@@ -21,7 +21,7 @@ const submit = () => {
 </script>
 
 <template>
-  <aside class="sticky top-0 self-start min-w-82.5 min-h-screen p-4 border-l border-gray-700">
+  <aside class="sticky top-0 self-start hidden min-[1100px]:block min-w-82.5 min-h-screen p-4 border-l border-gray-700">
     <form
       class="flex overflow-hidden rounded-lg border border-gray-700"
       @submit.prevent="submit"
