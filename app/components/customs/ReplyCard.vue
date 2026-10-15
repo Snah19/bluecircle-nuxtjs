@@ -7,6 +7,7 @@ import defaultProfile from '@/assets/svgs/default-profile.svg';
 import type { DropdownMenuItem } from "@nuxt/ui";
 import { meQuery } from '@/queries/me.query';
 import { useQuery } from '@tanstack/vue-query';
+import { useAuthModalStore } from '@/store/auth-modal';
 
 interface Props {
   reply: Comment;
@@ -22,11 +23,17 @@ const emit = defineEmits<{
 }>();
 
 const { data: me } = useQuery(meQuery());
+const authModal = useAuthModalStore();
 
 const isLiked = ref(props.reply.viewer.isLiked);
 const totalLikes = ref(props.reply.meta.totalLikes);
 
 const handleToggleLike = () => {
+  if (!me.value) {
+    authModal.open();
+    return;
+  }
+
   isLiked.value = !isLiked.value;
   totalLikes.value += isLiked.value ? 1 : -1;
   emit('toggle-like', props.reply.id);
@@ -38,6 +45,11 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
       label: 'Update',
       icon: 'i-lucide-pen',
       onSelect: () => {
+        if (!me.value) {
+          authModal.open();
+          return;
+        }
+
         emit('update-comment', props.reply);
       },
     },
@@ -45,6 +57,11 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
       label: 'Delete',
       icon: 'i-lucide-trash',
       onSelect: () => {
+        if (!me.value) {
+          authModal.open();
+          return;
+        }
+
         emit('delete-comment', props.reply);
       }
     },
@@ -52,6 +69,11 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
       label: 'Report',
       icon: 'i-lucide-flag',
       onSelect: () => {
+        if (!me.value) {
+          authModal.open();
+          return;
+        }
+
         // future implementation
       }
     },
@@ -128,7 +150,14 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
 
           <button
             class="text-xs cursor-pointer hover:text-white"
-            @click="emit('open-reply-modal', reply)"
+            @click="() => {
+              if (!me) {
+                authModal.open();
+                return;
+              }
+
+              emit('open-reply-modal', reply);
+            }"
           >
             Reply
           </button>

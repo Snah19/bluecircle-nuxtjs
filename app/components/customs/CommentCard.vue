@@ -9,6 +9,7 @@ import { repliesInfiniteQuery } from '@/queries/replies.infinite-query';
 import ReplyCard from '@/components/customs/ReplyCard.vue';
 import type { DropdownMenuItem } from "@nuxt/ui";
 import { meQuery } from '@/queries/me.query';
+import { useAuthModalStore } from '@/store/auth-modal';
 
 interface Props {
   comment: Comment;
@@ -23,6 +24,7 @@ const emit = defineEmits<{
 }>();
 
 const { data: me } = useQuery(meQuery());
+const authModal = useAuthModalStore();
 
 const hasRequestedReplies = ref(false);
 const isExpanded = ref(false);
@@ -96,6 +98,11 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
       label: 'Update',
       icon: 'i-lucide-pen',
       onSelect: () => {
+        if (!me.value) {
+          authModal.open();
+          return;
+        }
+
         emit('update-comment', { comment: props.comment });
       },
     },
@@ -103,6 +110,11 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
       label: 'Delete',
       icon: 'i-lucide-trash',
       onSelect: () => {
+        if (!me.value) {
+          authModal.open();
+          return;
+        }
+
         emit('delete-comment', { comment: props.comment });
       }
     },
@@ -110,6 +122,11 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
       label: 'Report',
       icon: 'i-lucide-flag',
       onSelect: () => {
+        if (!me.value) {
+          authModal.open();
+          return;
+        }
+
         // future implementation
       }
     },
@@ -174,7 +191,14 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
 
           <button
             class="text-xs cursor-pointer hover:text-white"
-            @click="emit('reply-comment', { comment })"
+            @click="() => {
+              if (!me) {
+                authModal.open();
+                return;
+              }
+
+              emit('reply-comment', { comment });
+            }"
           >
             Reply
           </button>
@@ -183,6 +207,11 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
         <button
           class="flex items-center gap-x-1 rounded-full cursor-pointer"
           @click.stop="() => {
+            if (!me) {
+              authModal.open();
+              return;
+            }
+            
             isLiked = !isLiked;
             totalLikes += isLiked ? 1 : -1;
             emit('toggle-like', props.comment.id);

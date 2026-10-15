@@ -13,18 +13,18 @@ import blueCircle from '~/assets/svgs/blue-circle.svg';
     </h1>
 
     <div class="flex gap-x-2 text-xs">
-      <button
+      <NuxtLink
         class="py-2 px-4 rounded-full cursor-pointer bg-blue-700 hover:bg-blue-600"
-        @click="navigateTo('/create-account')"
+        to="/create-account"
       >
         Create account
-      </button>
-      <button
+      </NuxtLink>
+      <NuxtLink
         class="py-2 px-4 rounded-full cursor-pointer bg-gray-800 hover:bg-gray-700"
-        @click="navigateTo('/sign-in')"
+        to="/sign-in"
       >
         Sign in
-      </button>
+      </NuxtLink>
     </div>
   </div>
 </template>

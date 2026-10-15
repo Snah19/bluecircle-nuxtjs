@@ -1,9 +1,9 @@
-<!-- app.layouts/default.vue -->
+<!-- app/layouts/default.vue -->
 
 <script setup lang="ts">
 import Leftbar from '@/components/layouts/Leftbar.vue';
 import Rightbar from '@/components/layouts/Rightbar.vue';
-
+import AuthModal from '~/components/customs/AuthModal.vue';
 </script>
 
 <template>
@@ -15,5 +15,7 @@ import Rightbar from '@/components/layouts/Rightbar.vue';
 
       <Rightbar />
     </div>
+
+    <AuthModal />
   </div>
 </template>
