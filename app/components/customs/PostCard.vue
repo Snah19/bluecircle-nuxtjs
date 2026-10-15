@@ -9,6 +9,7 @@ import defaultProfile from '@/assets/svgs/default-profile.svg';
 import { formatRelativeTime } from '@/lib/format-relative-time';
 import { useQuery } from '@tanstack/vue-query';
 import { meQuery } from '@/queries/me.query';
+import { useAuthModalStore } from '@/store/auth-modal';
 
 interface Props {
   post: Post;
@@ -32,6 +33,7 @@ const { data: me } = useQuery(meQuery());
 
 const toast = useToast();
 const requestURL = useRequestURL();
+const authModal = useAuthModalStore();
 
 const isReposted = ref(props.post.viewer.isReposted);
 const totalReposts = ref(props.post.meta.totalReposts);
@@ -42,6 +44,11 @@ const totalLikes = ref(props.post.meta.totalLikes);
 const isSaved = ref(props.post.viewer.isSaved);
 
 const handleToggleRepost = () => {
+  if (!me.value) {
+    authModal.open();
+    return;
+  }
+
   isReposted.value = !isReposted.value;
   totalReposts.value += isReposted.value ? 1 : -1;
 
@@ -60,6 +67,11 @@ watch(
 );
 
 const handleToggleLike = () => {
+  if (!me.value) {
+    authModal.open();
+    return;
+  }
+
   isLiked.value = !isLiked.value;
   totalLikes.value += isLiked.value ? 1 : -1;
 
@@ -78,6 +90,11 @@ watch(
 );
 
 const handleToggleSave = () => {
+  if (!me.value) {
+    authModal.open();
+    return;
+  }
+  
   isSaved.value = !isSaved.value;
 
   emit('toggleSave', props.post.id);
@@ -124,6 +141,10 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
       label: 'Update',
       icon: 'i-lucide-pen',
       onSelect: () => {
+        if (!me.value) {
+          authModal.open();
+        }
+
         emit('openUpdatePostModal', props.post);
       },
     },
@@ -131,6 +152,10 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
       label: 'Delete',
       icon: 'i-lucide-trash',
       onSelect: () => {
+        if (!me.value) {
+          authModal.open();
+        }
+
         emit('openDeletePostModal', props.post);
       }
     },
@@ -138,6 +163,10 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
       label: 'Report',
       icon: 'i-lucide-flag',
       onSelect: () => {
+        if (!me.value) {
+          authModal.open();
+        }
+
         // future implementation
       }
     },

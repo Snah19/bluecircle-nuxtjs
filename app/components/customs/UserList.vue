@@ -4,6 +4,7 @@ import defaultProfile from '@/assets/svgs/default-profile.svg';
 import { useQuery } from '@tanstack/vue-query';
 import { meQuery } from '@/queries/me.query';
 import LoadingSpinner from '@/components/customs/LoadingSpinner.vue';
+import { useAuthModalStore } from '@/store/auth-modal';
 
 interface Props {
   users: User[];
@@ -22,6 +23,8 @@ const emit = defineEmits<{
 }>();
 
 const { data: me } = useQuery(meQuery());
+
+const authModal = useAuthModalStore();
 
 const sentinel = ref<HTMLElement | null>(null);
 
@@ -70,7 +73,13 @@ useInfiniteScroll(sentinel, {
               user.viewer.relationshipStatus === 'follow back'
             ) && 'bg-blue-500 hover:bg-blue-600',
           )"
-          @click.prevent.stop="emit('toggle-follow', user.id)"
+          @click.prevent.stop="() => {
+            if (!me) {
+              authModal.open();
+              return;
+            }
+            emit('toggle-follow', user.id);
+          }"
         >
           {{ user.viewer.relationshipStatus }}
         </button>

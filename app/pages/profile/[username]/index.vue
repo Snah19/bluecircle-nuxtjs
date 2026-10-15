@@ -23,6 +23,7 @@ import { deletePost } from '@/functions/delete-post';
 import { updatePost } from '@/functions/update-post';
 import { updateProfile } from '@/functions/update-profile';
 import { toggleFollow } from '@/functions/toggle-follow';
+import { useAuthModalStore } from '@/store/auth-modal';
 
 type Tab = 'posts' | 'reposts' | 'likes';
 type Modal = 'edit-profile' | 'create-comment' | 'update-post' | 'delete-post' | null;
@@ -60,6 +61,7 @@ const target = ref<{
 
 
 const { data: me } = useQuery(meQuery());
+const authModal = useAuthModalStore();
 
 if (import.meta.server) {
   await queryClient
@@ -300,7 +302,16 @@ useHead({
                 user.viewer.relationshipStatus === 'follow back'
               ) && 'bg-blue-500 hover:bg-blue-600',
             )"
-            @click="toggleFollowMutation.mutate({ userId: user.id })"
+            @click="() => {
+            if (!me) {
+              authModal.open();
+              return;
+            }
+
+              if (user) {
+                toggleFollowMutation.mutate({ userId: user.id });
+              }
+            }"
           >
             {{ user.viewer.relationshipStatus }}
           </button>
