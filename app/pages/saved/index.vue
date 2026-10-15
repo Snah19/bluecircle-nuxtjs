@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import { savedPostsInfiniteQuery } from '~/queries/saved-posts.infinite-query';
 import PostList from '@/components/customs/PostList.vue';
 import { toggleLike } from '@/functions/toggle-like';
@@ -8,9 +8,7 @@ import { toggleSave } from '@/functions/toggle-save';
 import ImageLightbox from '@/components/customs/ImageLightbox.vue';
 import CreateCommentModal from '@/components/customs/CreateCommentModal.vue';
 import UpdatePostModal from '@/components/customs/UpdatePostModal.vue';
-import type { Post } from '@/types/post';
 import { createComment } from '@/functions/create-comment';
-import { meQuery } from '@/queries/me.query';
 import { updatePost } from '@/functions/update-post';
 import { deletePost } from '@/functions/delete-post';
 import ConfirmModal from "@/components/customs/ConfirmModal.vue";
@@ -30,9 +28,14 @@ const openLightbox = (payload: { imageUrls: string[]; index: number }) => {
   isLightboxOpen.value = true;
 };
 const activeModal = ref<Modal>(null);
-const previewPost = ref<Post | null>(null);
+const target = ref<{
+  id: string;
+  profileImageUrl: string | null,
+  text: string;
+  imageUrls: string[];
+  parentId: string | null;
+} | null>(null);
 
-const { data: me } = useQuery(meQuery());
 const savedPosts = useInfiniteQuery(
   savedPostsInfiniteQuery(),
 );
@@ -152,15 +155,33 @@ const goBack = () => {
       @toggle-save="(postId) => toggleSaveMutation.mutate({ postId })"
       @open-lightbox="openLightbox"
       @open-comment-modal="(p) => {
-        previewPost = p;
+        target = {
+          id: p.id,
+          profileImageUrl: p.user.profileImageUrl,
+          text: p.text,
+          imageUrls: p.imageUrls,
+          parentId: null,
+        };
         activeModal = 'create-comment';
       }"
       @open-delete-post-modal="(p) => {
-        previewPost = p;
+        target = {
+          id: p.id,
+          profileImageUrl: p.user.profileImageUrl,
+          text: p.text,
+          imageUrls: p.imageUrls,
+          parentId: null,
+        };
         activeModal = 'delete-post';
       }"
       @open-update-post-modal="(p) => {
-        previewPost = p;
+        target = {
+          id: p.id,
+          profileImageUrl: p.user.profileImageUrl,
+          text: p.text,
+          imageUrls: p.imageUrls,
+          parentId: null,
+        };
         activeModal = 'update-post';
       }"
     />
@@ -174,50 +195,43 @@ const goBack = () => {
   />
 
   <CreateCommentModal
-    v-if="previewPost"
+    v-if="target"
     :open="activeModal === 'create-comment'"
     :is-pending="createCommentMutation.isPending.value"
-    :my-profile-image-url="me?.profileImageUrl"
-    :author-profile-url="previewPost.user.profileImageUrl"
-    :text="previewPost.text"
-    :image-urls="previewPost.imageUrls"
-    @update:open="(open) => {
-      activeModal = open ? 'create-comment' : null;
-    }"
-    @create-comment="(commentText) => {
-      if (!previewPost) {
+    :target
+    @close="activeModal = null"
+    @submit="(commentText) => {
+      if (!target) {
         return;
       }
 
       createCommentMutation.mutate({
-        postId: previewPost.id,
+        postId: target.id,
         text: commentText,
       });
     }"
   />
 
   <UpdatePostModal
-    v-if="previewPost"
+    v-if="target"
     :open="activeModal === 'update-post'"
-    :post="previewPost"
-    @update:open="(open) => {
-      activeModal = open ? 'update-post' : null;
-    }"
-    @update-post="(payload) => {
-      if (!previewPost) {
+    :target
+    :is-pending="updatePostMutation.isPending.value"
+    @close="activeModal = null"
+    @submit="(payload) => {
+      if (!target) {
         return;
       }
 
       updatePostMutation.mutate({
-        postId: previewPost.id,
+        postId: target.id,
         ...payload,
       });
     }"
-    :is-pending="updatePostMutation.isPending.value"
   />
 
   <ConfirmModal
-    v-if="previewPost"
+    v-if="target"
     :open="activeModal === 'delete-post'"
     title="Delete this post?"
     message="If you remove this post, you won't be able to recover it."
@@ -225,12 +239,12 @@ const goBack = () => {
     :is-pending="deletePostMutation.isPending.value"
     @update:open="activeModal = 'delete-post'"
     @confirm="() => {
-      if (!previewPost) {
+      if (!target) {
         return;
       }
 
       deletePostMutation.mutate({
-        postId: previewPost.id,
+        postId: target.id,
       });
       activeModal = null;
     }"

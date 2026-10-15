@@ -4,7 +4,7 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
 import { userQuery } from '@/queries/user.query';
 import { toggleFollow } from '@/functions/toggle-follow';
-import UserList from '~/components/customs/UserList.vue';
+import UserList from '@/components/customs/UserList.vue';
 import { followersInfiniteQuery } from '@/queries/followers.infinite-query';
 
 const route = useRoute();

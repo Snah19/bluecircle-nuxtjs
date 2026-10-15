@@ -30,6 +30,9 @@ const emit = defineEmits<{
 
 const { data: me } = useQuery(meQuery());
 
+const toast = useToast();
+const requestURL = useRequestURL();
+
 const isReposted = ref(props.post.viewer.isReposted);
 const totalReposts = ref(props.post.meta.totalReposts);
 
@@ -87,17 +90,34 @@ watch(
   },
 );
 
-const shareDropdownItems = ref<DropdownMenuItem[]>(
-  [
-    {
-      label: 'Copy Link',
-      icon: 'i-lucide-link',
-      onSelect: () => {
-      },
-    },
-  ]
-);
+const shareDropdownItems: DropdownMenuItem[] = [
+  {
+    label: 'Copy Link',
+    icon: 'i-lucide-link',
+    onSelect: async () => {
+      const postUrl = `${requestURL.origin}/post/${props.post.id}`;
+      console.log(postUrl);
 
+      try {
+        await navigator.clipboard.writeText(postUrl);
+        toast.add({
+          title: 'Link copied to clipboard',
+          icon: 'i-lucide-check',
+          color: 'success',
+          progress: false,
+        });
+      }
+      catch {
+        toast.add({
+          title: "Couldn't copy the link",
+          icon: 'i-lucide-circle-alert',
+          color: 'error',
+          progress: false,
+        });
+      }
+    },
+  },
+];
 const moreDropdownItems = ref<DropdownMenuItem[]>(
   [
     {
@@ -300,6 +320,7 @@ const moreDropdownItems = ref<DropdownMenuItem[]>(
           >
             <button
               class="flex justify-center items-center rounded-full cursor-pointer"
+              @click.stop
             >
               <Icon name="lucide:forward" class="size-4" />
             </button>
