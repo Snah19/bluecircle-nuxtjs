@@ -19,6 +19,13 @@ const leftbarLinks = computed<LeftbarLink[]>(() => [
     active: route.path === '/',
   },
   {
+    label: 'Search',
+    icon: 'solar:magnifer-linear',
+    iconActive: 'solar:magnifer-bold',
+    href: '/search',
+    active: route.path === '/search',
+  },
+  {
     label: 'Notifications',
     icon: 'solar:bell-linear',
     iconActive: 'solar:bell-bold',

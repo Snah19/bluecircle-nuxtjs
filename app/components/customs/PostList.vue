@@ -7,6 +7,7 @@ import LoadingSpinner from '@/components/customs/LoadingSpinner.vue';
 
 interface Props {
   posts: Post[];
+  emptyMessage?: string;
   isLoading?: boolean;
   isError?: boolean;
   hasNextPage?: boolean;
@@ -53,10 +54,10 @@ useInfiniteScroll(sentinel, {
 
     <!-- Empty -->
     <p
-      v-else-if="posts.length === 0"
+      v-else-if="posts.length === 0 && emptyMessage"
       class="p-8 text-center text-sm text-gray-400"
     >
-      No posts yet.
+      {{ emptyMessage }}
     </p>
 
     <!-- Loaded -->

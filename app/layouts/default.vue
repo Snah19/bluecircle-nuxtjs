@@ -1,17 +1,19 @@
 <!-- app.layouts/default.vue -->
 
 <script setup lang="ts">
-import Leftbar from '~/components/layouts/Leftbar.vue';
-import Rightbar from '~/components/layouts/Rightbar.vue';
+import Leftbar from '@/components/layouts/Leftbar.vue';
+import Rightbar from '@/components/layouts/Rightbar.vue';
 
 </script>
 
 <template>
-  <div class="flex justify-between max-w-292.5 min-h-screen mx-auto bg-gray-900">
-    <Leftbar />
+  <div class="bg-gray-900">
+    <div class="flex justify-between max-w-292.5 min-h-screen mx-auto">
+      <Leftbar />
 
-    <slot />
+      <slot />
 
-    <Rightbar />
+      <Rightbar />
+    </div>
   </div>
 </template>

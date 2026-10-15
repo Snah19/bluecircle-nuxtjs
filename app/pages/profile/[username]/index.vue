@@ -15,7 +15,6 @@ import ConfirmModal from "@/components/customs/ConfirmModal.vue";
 import { toggleRepost } from '@/functions/toggle-repost';
 import { toggleLike } from '@/functions/toggle-like';
 import { toggleSave } from '@/functions/toggle-save';
-import type { Post } from '@/types/post';
 import { createComment } from '~/functions/create-comment';
 import { userPostsInfiniteQuery } from '@/queries/user-posts.infinite-query';
 import { userRepostsInfiniteQuery } from '@/queries/user-reposts.infinite-query';
@@ -51,7 +50,14 @@ const openLightbox = (payload: { imageUrls: string[]; index: number }) => {
   lightbox.value = payload;
   isLightboxOpen.value = true;
 };
-const previewPost = ref<Post | null>(null);
+const target = ref<{
+  id: string;
+  profileImageUrl: string | null,
+  text: string;
+  imageUrls: string[];
+  parentId: string | null;
+} | null>(null);
+
 
 const { data: me } = useQuery(meQuery());
 
@@ -407,15 +413,33 @@ useHead({
       @toggle-save="(postId) => toggleSaveMutation.mutate({ postId })"
       @open-lightbox="openLightbox"
       @open-comment-modal="(p) => {
-        previewPost = p;
+        target = {
+          id: p.id,
+          profileImageUrl: p.user.profileImageUrl,
+          text: p.text,
+          imageUrls: p.imageUrls,
+          parentId: null,
+        };
         activeModal = 'create-comment';
       }"
       @open-delete-post-modal="(p) => {
-        previewPost = p;
+        target = {
+          id: p.id,
+          profileImageUrl: p.user.profileImageUrl,
+          text: p.text,
+          imageUrls: p.imageUrls,
+          parentId: null,
+        };
         activeModal = 'delete-post';
       }"
       @open-update-post-modal="(p) => {
-        previewPost = p;
+        target = {
+          id: p.id,
+          profileImageUrl: p.user.profileImageUrl,
+          text: p.text,
+          imageUrls: p.imageUrls,
+          parentId: null,
+        };
         activeModal = 'update-post';
       }"
     />
@@ -440,50 +464,43 @@ useHead({
   />
 
   <UpdatePostModal
-    v-if="previewPost"
+    v-if="target"
     :open="activeModal === 'update-post'"
-    :post="previewPost"
-    @update:open="(open) => {
-      activeModal = open ? 'update-post' : null;
-    }"
-    @update-post="(payload) => {
-      if (!previewPost) {
+    :is-pending="updatePostMutation.isPending.value"
+    :target
+    @close="activeModal = null"
+    @submit="(payload) => {
+      if (!target) {
         return;
       }
 
       updatePostMutation.mutate({
-        postId: previewPost.id,
+        postId: target.id,
         ...payload,
       });
     }"
-    :is-pending="updatePostMutation.isPending.value"
   />
 
   <CreateCommentModal
-    v-if="previewPost"
+    v-if="target"
     :open="activeModal === 'create-comment'"
     :is-pending="createCommentMutation.isPending.value"
-    :my-profile-image-url="me?.profileImageUrl"
-    :author-profile-url="previewPost.user.profileImageUrl"
-    :text="previewPost.text"
-    :image-urls="previewPost.imageUrls"
-    @update:open="(open) => {
-      activeModal = open ? 'create-comment' : null;
-    }"
-    @create-comment="(commentText) => {
-      if (!previewPost) {
+    :target
+    @close="activeModal = null"
+    @submit="(commentText) => {
+      if (!target) {
         return;
       }
 
       createCommentMutation.mutate({
-        postId: previewPost.id,
+        postId: target.id,
         text: commentText,
       });
     }"
   />
 
   <ConfirmModal
-    v-if="previewPost"
+    v-if="target"
     :open="activeModal === 'delete-post'"
     title="Delete this post?"
     message="If you remove this post, you won't be able to recover it."
@@ -491,12 +508,12 @@ useHead({
     :is-pending="deletePostMutation.isPending.value"
     @update:open="activeModal = 'delete-post'"
     @confirm="() => {
-      if (!previewPost) {
+      if (!target) {
         return;
       }
 
       deletePostMutation.mutate({
-        postId: previewPost.id,
+        postId: target.id,
       });
       activeModal = null;
     }"

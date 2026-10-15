@@ -3,6 +3,7 @@ import type { User } from '@/types/user';
 import defaultProfile from '@/assets/svgs/default-profile.svg';
 import { useQuery } from '@tanstack/vue-query';
 import { meQuery } from '@/queries/me.query';
+import LoadingSpinner from '@/components/customs/LoadingSpinner.vue';
 
 interface Props {
   users: User[];
@@ -37,7 +38,7 @@ useInfiniteScroll(sentinel, {
   
   <NuxtLink
     v-for="user in users"
-    class="flex gap-x-4 min-h-24.25 py-2 px-4 border-b border-gray-700 cursor-pointer"
+    class="flex gap-x-4 py-2 px-4 border-b border-gray-700 cursor-pointer"
     :href="`/profile/${user.username}`"
   >
     <div class="shrink-0 size-10 border border-gray-500 rounded-full overflow-hidden">
@@ -74,7 +75,10 @@ useInfiniteScroll(sentinel, {
           {{ user.viewer.relationshipStatus }}
         </button>
       </div>
-      <p class="text-sm line-clamp-1">
+      <p
+        v-if="user.bio"
+        class="text-sm line-clamp-1"
+      >
         {{ user.bio }}
       </p>
     </div>
