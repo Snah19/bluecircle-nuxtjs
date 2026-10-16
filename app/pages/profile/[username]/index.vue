@@ -24,9 +24,10 @@ import { updatePost } from '@/functions/update-post';
 import { updateProfile } from '@/functions/update-profile';
 import { toggleFollow } from '@/functions/toggle-follow';
 import { useAuthModalStore } from '@/store/auth-modal';
+import { signOut } from '~/functions/sign-out';
 
 type Tab = 'posts' | 'reposts' | 'likes';
-type Modal = 'edit-profile' | 'create-comment' | 'update-post' | 'delete-post' | null;
+type Modal = 'edit-profile' | 'create-comment' | 'update-post' | 'delete-post' | 'sign-out' | null;
 
 const tabCookie = useCookie<Tab>('profile_tab', {
   maxAge: 30 * 24 * 60 * 60,
@@ -236,6 +237,23 @@ const deletePostMutation = useMutation({
   },
 });
 
+const tokenCookie = useCookie<string | null>('auth_token');
+
+const signoutMutation = useMutation({
+  mutationFn: signOut,
+  onSuccess: () => {
+    tokenCookie.value = null;
+    queryClient.clear();
+    window.location.href = '/';
+  },
+  onError: (error: any) => {
+    console.error('Sign out failed:', error?.data?.message || error.message);
+    tokenCookie.value = null;
+    queryClient.clear();
+    window.location.href = '/';
+  },
+});
+
 const goBack = () => {
   if (window.history.state?.back) {
     router.back();
@@ -285,13 +303,26 @@ useHead({
             v-if="!user"
             class="w-26 h-9 text-sm rounded-full cursor-pointer bg-gray-800 hover:bg-gray-700"
           />
-          <button
+          <div
             v-if="user && isOwner"
-            class="py-2 px-4 text-sm rounded-full cursor-pointer bg-gray-800 hover:bg-gray-700"
-            @click="activeModal = 'edit-profile'"
+            class="flex gap-x-2"
           >
-            Edit Profile
-          </button>
+            <button
+              class="py-2 px-4 text-sm rounded-full cursor-pointer bg-gray-800 hover:bg-gray-700"
+              @click="activeModal = 'edit-profile'"
+            >
+              Edit Profile
+            </button>
+            <button
+              class="flex justify-center items-center size-9 text-sm rounded-full cursor-pointer bg-gray-800 hover:bg-gray-700"
+              @click="activeModal = 'sign-out'"
+            >
+              <Icon
+                name="i-lucide-log-out"
+                class="size-4"
+              />
+            </button>
+          </div>
 
           <button
             v-if="user && !isOwner"
@@ -527,6 +558,21 @@ useHead({
         postId: target.id,
       });
       activeModal = null;
+    }"
+    @cancel="() => {
+      activeModal = null;
+    }"
+  />
+
+  <ConfirmModal
+    :open="activeModal === 'sign-out'"
+    title="Sign out?"
+    message="You will be signed out of all your accounts."
+    confirm-button-text="Sign out"
+    @update:open="activeModal = 'sign-out'"
+    @confirm="() => {
+      activeModal = null;
+      signoutMutation.mutate();
     }"
     @cancel="() => {
       activeModal = null;
