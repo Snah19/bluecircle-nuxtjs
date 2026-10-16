@@ -1,6 +1,9 @@
 <!-- app/components/layouts/Rightbar.vue -->
 
 <script setup lang="ts">
+
+const route = useRoute();
+
 const urlTerm = useSearchTerm();
 
 // Local draft: what the user is typing before they submit
@@ -23,7 +26,10 @@ const submit = () => {
 <template>
   <aside class="sticky top-0 self-start hidden min-[1100px]:block min-w-82.5 min-h-screen p-4 border-l border-gray-700">
     <form
-      class="flex overflow-hidden rounded-lg border border-gray-700"
+      :class="cn(
+        'flex overflow-hidden rounded-lg border border-gray-700',
+        route.path === '/search' && 'invisible',
+      )"
       @submit.prevent="submit"
     >
       <input
