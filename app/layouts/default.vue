@@ -34,16 +34,11 @@ const { data: me } = useQuery(
       v-if="!me"
       class="z-50 fixed bottom-0 flex justify-between items-center min-[1300px]:hidden w-full py-2 px-4 border-t border-gray-700 bg-gray-900"
     >
-      <div class="flex justify-center items-center gap-x-2">
-        <img
-          class="size-6"
-          :src="blueCircle"
-          alt="bluecircle"
-        />
-        <p class="text-lg font-bold">
-          Bluecircle
-        </p>
-      </div>
+      <img
+        class="size-6"
+        :src="blueCircle"
+        alt="bluecircle"
+      />
 
       <div class="flex gap-x-2 text-xs">
         <NuxtLink
