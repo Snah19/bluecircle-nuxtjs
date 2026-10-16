@@ -39,59 +39,68 @@ useInfiniteScroll(sentinel, {
 <template>
   <LoadingSpinner v-if="isLoading" />
   
-  <NuxtLink
-    v-for="user in users"
-    class="flex gap-x-4 py-2 px-4 border-b border-gray-700 cursor-pointer"
-    :href="`/profile/${user.username}`"
+  <ul
+    v-else-if="users.length > 0"
+    class="mb-[100vh]"
   >
-    <div class="shrink-0 size-10 border border-gray-500 rounded-full overflow-hidden">
-      <img
-        class="size-full object-cover"
-        :src="user.profileImageUrl || defaultProfile"
-        width="auto"
-        height="auto"
-        :alt="`${user.fullname}, ${user.username}`"
-      />
-    </div>
-    <div class="flex-1 space-y-2">
-      <div class="flex justify-between">
-        <div class="text-xs">
-          <p class="font-bold">
-            {{ user.fullname }}
-          </p>
-          <p class="text-gray-400">
-            @{{ user.username }}
+    <li
+      v-for="user in users"
+      :key="user.id"
+    >
+      <NuxtLink
+        class="flex gap-x-4 py-2 px-4 border-b border-gray-700 cursor-pointer"
+        :href="`/profile/${user.username}`"
+      >
+        <div class="shrink-0 size-10 border border-gray-500 rounded-full overflow-hidden">
+          <img
+            class="size-full object-cover"
+            :src="user.profileImageUrl || defaultProfile"
+            width="auto"
+            height="auto"
+            :alt="`${user.fullname}, ${user.username}`"
+          />
+        </div>
+        <div class="flex-1 space-y-2">
+          <div class="flex justify-between">
+            <div class="text-xs">
+              <p class="font-bold">
+                {{ user.fullname }}
+              </p>
+              <p class="text-gray-400">
+                @{{ user.username }}
+              </p>
+            </div>
+
+            <button
+              v-if="me?.id !== user.id"
+              :class="cn(
+                'py-2 px-4 text-sm rounded-full cursor-pointer capitalize bg-gray-800 hover:bg-gray-700',
+                (
+                  user.viewer.relationshipStatus === 'follow' ||
+                  user.viewer.relationshipStatus === 'follow back'
+                ) && 'bg-blue-500 hover:bg-blue-600',
+              )"
+              @click.prevent.stop="() => {
+                if (!me) {
+                  authModal.open();
+                  return;
+                }
+                emit('toggle-follow', user.id);
+              }"
+            >
+              {{ user.viewer.relationshipStatus }}
+            </button>
+          </div>
+          <p
+            v-if="user.bio"
+            class="text-sm line-clamp-1"
+          >
+            {{ user.bio }}
           </p>
         </div>
-
-        <button
-          v-if="me?.id !== user.id"
-          :class="cn(
-            'py-2 px-4 text-sm rounded-full cursor-pointer capitalize bg-gray-800 hover:bg-gray-700',
-            (
-              user.viewer.relationshipStatus === 'follow' ||
-              user.viewer.relationshipStatus === 'follow back'
-            ) && 'bg-blue-500 hover:bg-blue-600',
-          )"
-          @click.prevent.stop="() => {
-            if (!me) {
-              authModal.open();
-              return;
-            }
-            emit('toggle-follow', user.id);
-          }"
-        >
-          {{ user.viewer.relationshipStatus }}
-        </button>
-      </div>
-      <p
-        v-if="user.bio"
-        class="text-sm line-clamp-1"
-      >
-        {{ user.bio }}
-      </p>
-    </div>
-  </NuxtLink>
+      </NuxtLink>
+    </li>
+  </ul>
 
   <div ref="sentinel" class="h-px" />
 

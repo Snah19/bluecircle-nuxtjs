@@ -1,3 +1,5 @@
+// app/plugins/vue-query.ts
+
 import {
   VueQueryPlugin,
   QueryClient,

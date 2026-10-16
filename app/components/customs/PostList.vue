@@ -61,20 +61,27 @@ useInfiniteScroll(sentinel, {
     </p>
 
     <!-- Loaded -->
-    <template v-else>
-      <PostCard
+    <ul
+      v-else-if="posts.length > 0"
+      class="mb-[100vh]"
+    >
+      <li
         v-for="post in posts"
         :key="post.id"
-        :post
-        @toggle-repost="emit('toggleRepost', $event)"
-        @toggle-like="emit('toggleLike', $event)"
-        @toggle-save="emit('toggleSave', $event)"
-        @open-lightbox="emit('openLightbox', $event)"
-        @open-comment-modal="emit('openCommentModal', $event)"
-        @open-update-post-modal="emit('openUpdatePostModal', $event)"
-        @open-delete-post-modal="emit('openDeletePostModal', $event)"
-      />
-    </template>
+      >
+        <PostCard
+          :post
+          @toggle-repost="emit('toggleRepost', $event)"
+          @toggle-like="emit('toggleLike', $event)"
+          @toggle-save="emit('toggleSave', $event)"
+          @open-lightbox="emit('openLightbox', $event)"
+          @open-comment-modal="emit('openCommentModal', $event)"
+          @open-update-post-modal="emit('openUpdatePostModal', $event)"
+          @open-delete-post-modal="emit('openDeletePostModal', $event)"
+        />
+      </li>
+    </ul>
+
 
     <div ref="sentinel" class="h-px" />
 

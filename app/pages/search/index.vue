@@ -44,6 +44,24 @@ const openLightbox = (payload: { imageUrls: string[]; index: number }) => {
   isLightboxOpen.value = true;
 };
 
+const urlTerm = useSearchTerm();
+
+// Local draft: what the user is typing before they submit
+const term = ref(urlTerm.value);
+
+// Keep the input in sync when the URL changes from somewhere else
+// (back/forward buttons, clicking a hashtag link, leaving the search page)
+watch(urlTerm, (value) => {
+  term.value = value;
+});
+
+const submit = () => {
+  const value = term.value.trim();
+  if (!value) return;
+
+  navigateTo({ path: '/search', query: { query: value } });
+};
+
 const target = ref<{
   id: string;
   profileImageUrl: string | null,
@@ -179,27 +197,50 @@ useHead({
 
 <template>
   <main class="w-full min-h-screen">
-    <div class="z-50 sticky top-0 flex border-b border-gray-700 bg-gray-900">
-      <button
-        class="relative flex-1 py-4 cursor-pointer"
-        @click="activeTab = 'posts'"
+    <div class="z-50 sticky top-0 flex flex-col gap-y-4 p-4 pb-0 border-b border-gray-700 bg-gray-900">
+      <form
+        class="flex overflow-hidden rounded-lg border border-gray-700"
+        @submit.prevent="submit"
       >
-        Posts
-        <span
-          v-if="activeTab === 'posts'"
-          class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500"
+        <input
+          v-model="term"
+          name="query"
+          :class="cn(
+            'min-w-0 w-full p-2 focus-within:outline-0'
+          )"
+          placeholder="Search"
+          autocomplete="off"
         />
-      </button>
-      <button
-        class="relative flex-1 py-4 cursor-pointer"
-        @click="activeTab = 'people'"
-      >
-        People
-        <span
-          v-if="activeTab === 'people'"
-          class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500"
-        />
-      </button>
+        <button
+          type="submit"
+          class="shrink-0 flex justify-center items-center px-4 cursor-pointer bg-gray-700 hover:bg-gray-600"
+        >
+          <Icon name="lucide:search" />
+        </button>
+      </form>
+
+      <div class="flex gap-x-4">
+        <button
+          class="relative pb-4 cursor-pointer"
+          @click="activeTab = 'posts'"
+        >
+          Posts
+          <span
+            v-if="activeTab === 'posts'"
+            class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500"
+          />
+        </button>
+        <button
+          class="relative pb-4 cursor-pointer"
+          @click="activeTab = 'people'"
+        >
+          People
+          <span
+            v-if="activeTab === 'people'"
+            class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500"
+          />
+        </button>
+      </div>
     </div>
 
     <PostList
@@ -247,7 +288,7 @@ useHead({
       }"
     />
     <UserList
-      v-else
+      v-else-if="activeTab === 'people'"
       :users
       :is-loading="searchedUsersQuery.isLoading.value"
       :is-error="searchedUsersQuery.isError.value"
