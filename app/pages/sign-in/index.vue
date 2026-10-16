@@ -40,10 +40,10 @@ const signInMutation = useMutation({
 </script>
 
 <template>
-  <div class="grid grid-cols-[40%_60%]">
-    <div class="shrink-0 flex flex-col justify-center p-10 border-r border-gray-700">
+  <div class="block min-[800px]:grid grid-cols-[40%_60%]">
+    <div class="shrink-0 hidden min-[800px]:flex flex-col justify-center p-10 border-r border-gray-700">
       <div class="space-y-4">
-        <h1 class="text-6xl font-bold text-right text-blue-500">
+        <h1 class="text-4xl font-bold text-right text-blue-500">
           Sign in
         </h1>
         <p class="text-right">
@@ -51,7 +51,15 @@ const signInMutation = useMutation({
         </p>
       </div>
     </div>
-    <main class="flex flex-col justify-center max-w-150 w-full min-h-screen p-10">
+    <main class="flex flex-col justify-center items-center gap-y-10 min-[800px]:items-start min-[800px]:max-w-150 w-full min-h-screen p-10">
+      <div class="block min-[800px]:hidden space-y-4 text-center">
+        <h1 class="text-4xl font-bold  text-blue-500">
+          Sign in
+        </h1>
+        <p>
+          Enter your email and password
+        </p>
+      </div>
       <SignInForm
         :isPending="signInMutation.isPending.value"
         :error-message="errorMessage"

@@ -29,7 +29,7 @@ const { data: me } = useQuery(
 
     <AuthModal />
 
-    <Bottombar />
+    <Bottombar v-if="me" />
     <div
       v-if="!me"
       class="z-50 fixed bottom-0 flex justify-between items-center min-[1300px]:hidden w-full py-2 px-4 border-t border-gray-700 bg-gray-900"
