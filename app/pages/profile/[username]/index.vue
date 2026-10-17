@@ -64,12 +64,6 @@ const target = ref<{
 const { data: me } = useQuery(meQuery());
 const authModal = useAuthModalStore();
 
-if (import.meta.server) {
-  await queryClient
-    .query(userQuery(username.value))
-    .catch(() => {});
-}
-
 const { data: user } = useQuery(
   computed(() => userQuery(username.value)),
 );
@@ -125,7 +119,10 @@ const updateProfileMutation = useMutation({
   onSuccess: (data) => {
     console.log(data);
     activeModal.value = null;
-    queryClient.invalidateQueries({ queryKey: ['users', username.value] });
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['users', username.value] }),
+      queryClient.invalidateQueries({ queryKey: ['me'] }),
+    ]);
   },
   onError: (error) => {
     console.error(error);
