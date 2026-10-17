@@ -82,7 +82,14 @@ const leftbarLinks = computed<LeftbarLink[]>(() => [
             v-if="l.label === 'Notifications' && unreadNotifications?.total && unreadNotifications?.total > 0"
             class="absolute -top-1 -right-1 flex justify-center items-center text-xs size-4 rounded-full bg-blue-500"
           >
-            {{ unreadNotifications.total }}
+            {{ `${unreadNotifications.total > 99 ? '99' : unreadNotifications.total}`  }}
+
+            <span
+              v-if="unreadNotifications?.total > 99"
+              class="absolute -top-2 -right-1 text-xs"
+            >
+              +
+            </span>
           </span>
         </div>
 
